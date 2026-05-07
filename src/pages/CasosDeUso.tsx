@@ -8,6 +8,29 @@ interface CasosDeUsoProps {
 }
 
 export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
+  const sectionReveal = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.65, ease: 'easeOut' }
+    }
+  };
+
+  const listStagger = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1, delayChildren: 0.08 } }
+  };
+
+  const itemReveal = {
+    hidden: { opacity: 0, y: 22 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.45, ease: 'easeOut' }
+    }
+  };
+
   const caseTypes = [
     {
       image: '/images/Portada2.webp',
@@ -42,7 +65,13 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="min-h-screen pt-20">
-      <section className="py-14 px-4 relative overflow-hidden">
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ duration: 0.75, ease: 'easeOut' }}
+        className="py-14 px-4 relative overflow-hidden"
+      >
         <img
           src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=2200&q=80"
           alt="Analitica y paneles de impacto"
@@ -63,27 +92,45 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
               Mostramos que cambia cuando hay liderazgo de IA con foco ejecutivo: mas velocidad, menos desperdicio y mejores decisiones.
             </p>
           </div>
-          <div className="lg:col-span-4 relative z-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8">
+          <motion.div
+            initial={{ opacity: 0, x: 22 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.65, ease: 'easeOut', delay: 0.15 }}
+            className="lg:col-span-4 relative z-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8"
+          >
             <h2 className="text-xl font-black mb-5">Que medimos</h2>
             <div className="space-y-4 text-sm text-slate-100">
               <div className="flex items-start gap-3"><Clock3 className="w-4 h-4 mt-0.5" /> Tiempo y velocidad operativa</div>
               <div className="flex items-start gap-3"><BarChart3 className="w-4 h-4 mt-0.5" /> KPIs de impacto por area</div>
               <div className="flex items-start gap-3"><TrendingUp className="w-4 h-4 mt-0.5" /> Productividad y retorno</div>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="py-14 px-4">
+      <motion.section
+        variants={sectionReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-14 px-4"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h2 className="text-3xl font-black mb-3">Ejemplos de impacto</h2>
             <p className="text-slate-600 dark:text-slate-300">Casos tipo orientativos para visualizar que cambia en negocio cuando hay liderazgo de IA.</p>
           </div>
           <h2 className="text-3xl font-black mb-8">Casos tipo de transformacion</h2>
-          <div className="space-y-5">
+          <motion.div variants={listStagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="space-y-5">
             {caseTypes.map((item, i) => (
-              <div key={i} className="grid md:grid-cols-12 gap-5 p-6 border border-slate-300 dark:border-slate-700 rounded-lg bg-gradient-to-r from-white/95 to-slate-100/80 dark:from-slate-800/60 dark:to-slate-700/50">
+              <motion.div
+                variants={itemReveal}
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                key={i}
+                className="grid md:grid-cols-12 gap-5 p-6 border border-slate-300 dark:border-slate-700 rounded-lg bg-gradient-to-r from-white/95 to-slate-100/80 dark:from-slate-800/60 dark:to-slate-700/50"
+              >
                 <div className="md:col-span-3">
                   <div className="mb-3 rounded-md overflow-hidden border border-slate-300 dark:border-slate-700">
                     <img src={item.image} alt={item.title} className="w-full h-28 object-cover" referrerPolicy="no-referrer" />
@@ -96,15 +143,15 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
                   <div><p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 mb-2">Intervencion</p><p className="text-slate-600 dark:text-slate-300 text-sm">{item.intervention}</p></div>
                   <div><p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 mb-2">Impacto</p><p className="text-slate-700 dark:text-slate-200 text-sm font-semibold">{item.impact}</p></div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="py-8 px-4">
+      <motion.section variants={sectionReveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="py-8 px-4">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8">
-          <div className="bg-gradient-to-br from-[#ecfdf5] to-[#f0fdf4] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+          <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="bg-gradient-to-br from-[#ecfdf5] to-[#f0fdf4] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
             <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80" alt="Metricas y performance" className="h-40 w-full object-cover rounded-md mb-5" loading="lazy" />
             <h2 className="text-2xl font-black mb-5">Metricas orientativas</h2>
             <div className="space-y-3">
@@ -112,8 +159,8 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
                 <div key={i} className="flex items-start gap-3"><CheckCircle2 className="w-5 h-5 mt-0.5 text-slate-500" /><p className="text-slate-700 dark:text-slate-300">{item}</p></div>
               ))}
             </div>
-          </div>
-          <div className="bg-gradient-to-br from-[#fff7ed] to-[#fffbeb] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+          </motion.div>
+          <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="bg-gradient-to-br from-[#fff7ed] to-[#fffbeb] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
             <img src="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=80" alt="Decision ejecutiva basada en datos" className="h-40 w-full object-cover rounded-md mb-5" loading="lazy" />
             <h2 className="text-2xl font-black mb-5">Antes vs Despues</h2>
             <div className="space-y-5">
@@ -126,12 +173,12 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
                 <p className="text-slate-700 dark:text-slate-200 font-semibold">Plan claro, ejecucion coordinada y KPIs activos para escalar lo que funciona.</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto bg-gradient-to-br from-[#ede9fe] to-[#e0f2fe] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-10">
+      <motion.section variants={sectionReveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="py-20 px-4">
+        <motion.div whileHover={{ scale: 1.01 }} transition={{ type: 'spring', stiffness: 220, damping: 20 }} className="max-w-5xl mx-auto bg-gradient-to-br from-[#ede9fe] to-[#e0f2fe] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-10">
           <div className="w-20 h-20 bg-slate-500/10 dark:bg-slate-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <Target className="w-10 h-10 text-slate-600 dark:text-slate-300" />
           </div>
@@ -145,13 +192,19 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
             Objetivo de esta pagina: demostrar que este modelo funciona con resultados medibles.
           </p>
           <div className="flex justify-center">
-            <button onClick={onContact} className="px-8 py-4 rounded-xl font-bold inline-flex items-center gap-2">
+            <motion.button
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 18 }}
+              onClick={onContact}
+              className="px-8 py-4 rounded-xl font-bold inline-flex items-center gap-2"
+            >
               Agendar diagnostico
               <ArrowRight className="w-5 h-5" />
-            </button>
+            </motion.button>
           </div>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
     </motion.div>
   );
 };

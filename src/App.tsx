@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowRight, 
   CheckCircle2, 
@@ -65,7 +65,7 @@ import {
   BookOpen,
   Fingerprint
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { translations } from './translations';
 import { TecnicoContratacion } from './pages/TecnicoContratacion';
@@ -76,6 +76,12 @@ import { supabase } from './lib/supabase';
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
+  const { scrollYProgress } = useScroll();
+  const smoothScrollProgress = useSpring(scrollYProgress, {
+    stiffness: 130,
+    damping: 26,
+    mass: 0.2
+  });
   
   const [lang, setLang] = useState(() => {
     return localStorage.getItem('lang') || 'ES';
@@ -169,6 +175,68 @@ function AppContent() {
   const [demoErrorMessage, setDemoErrorMessage] = useState('');
 
   const t = translations[lang as keyof typeof translations] || translations['ES'];
+
+  const AnimatedMetricValue = ({ value, className }: { value: string; className: string }) => {
+    const [display, setDisplay] = useState(value);
+    const [shouldAnimate, setShouldAnimate] = useState(false);
+    const elementRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+      const node = elementRef.current;
+      if (!node) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setShouldAnimate(true);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.45 }
+      );
+
+      observer.observe(node);
+      return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+      if (!shouldAnimate) return;
+
+      const normalized = value.replace(',', '.');
+      const match = normalized.match(/(\d+(\.\d+)?)/);
+      if (!match) {
+        setDisplay(value);
+        return;
+      }
+
+      const rawNumber = Number(match[1]);
+      if (Number.isNaN(rawNumber)) {
+        setDisplay(value);
+        return;
+      }
+
+      const prefix = value.slice(0, match.index);
+      const suffix = value.slice((match.index || 0) + match[1].length);
+      const decimals = match[1].includes('.') ? match[1].split('.')[1].length : 0;
+      const durationMs = 900;
+      const start = performance.now();
+
+      const tick = (now: number) => {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / durationMs, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = rawNumber * eased;
+        const formatted = decimals > 0 ? current.toFixed(decimals) : Math.round(current).toString();
+        setDisplay(`${prefix}${formatted.replace('.', ',')}${suffix}`);
+
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+
+      requestAnimationFrame(tick);
+    }, [shouldAnimate, value]);
+
+    return <div ref={elementRef} className={className}>{display}</div>;
+  };
 
   const getMapLanguage = (langCode: string) => {
     const map: Record<string, string> = {
@@ -408,6 +476,10 @@ function AppContent() {
 
   const renderHome = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pb-24">
+      <motion.div
+        style={{ scaleX: smoothScrollProgress }}
+        className="fixed top-0 left-0 right-0 h-1 origin-left bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 z-[70]"
+      />
       {/* HERO SECTION (Double Funnel) */}
       <section className="relative pt-20 pb-24 lg:pt-32 lg:pb-32 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-50/50 via-transparent to-indigo-50/50 dark:from-violet-900/20 dark:via-slate-950 dark:to-indigo-900/20 -z-10 transition-colors"></div>
@@ -444,19 +516,25 @@ function AppContent() {
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <button
+                <motion.button
+                  whileHover={{ y: -2, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 20 }}
                   onClick={() => setCurrentPage('diagnostico')}
                   className="bg-violet-600 hover:bg-violet-700 text-white px-7 py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
                 >
                   {t.home.b2gBtn}
                   <ArrowRight className="w-5 h-5" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 20 }}
                   onClick={() => setCurrentPage('como-trabajamos')}
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-7 py-4 rounded-xl font-semibold hover:border-violet-400 dark:hover:border-violet-500 transition-colors"
                 >
                   Ver metodología
-                </button>
+                </motion.button>
               </div>
             </motion.div>
 
@@ -517,7 +595,13 @@ function AppContent() {
       </section>
 
       {/* BLOQUE DE TENSION */}
-      <section className="py-14 bg-slate-950 text-white">
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="py-14 bg-slate-950 text-white"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-4">
             {[
@@ -525,13 +609,21 @@ function AppContent() {
               'El coste real no es invertir en IA: es invertir sin liderazgo.',
               'Si no defines dirección ahora, dentro de 12 meses llegarás tarde.'
             ].map((item, i) => (
-              <div key={i} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
+                whileHover={{ y: -4 }}
+                className="rounded-2xl border border-white/10 bg-white/5 p-5"
+              >
                 <p className="text-sm font-semibold leading-relaxed">{item}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* PROBLEMA */}
       <section className="py-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
@@ -850,13 +942,16 @@ function AppContent() {
           <p className="text-slate-300 mb-8">
             En 30 minutos obtienes diagnóstico inicial, oportunidades priorizadas y roadmap 30/60/90.
           </p>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 18 }}
             onClick={() => setCurrentPage('diagnostico')}
             className="bg-violet-600 hover:bg-violet-700 text-white px-9 py-4 rounded-xl font-bold transition-colors inline-flex items-center gap-2"
           >
             Agenda tu diagnóstico de IA (30 min)
             <ArrowRight className="w-5 h-5" />
-          </button>
+          </motion.button>
           <p className="text-xs text-slate-400 mt-4">Sin compromiso · Roadmap incluido · Capacidad limitada cada mes</p>
         </div>
       </section>
@@ -893,13 +988,16 @@ function AppContent() {
           </div>
 
           <div className="mt-10 text-center">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 18 }}
               onClick={() => setCurrentPage('diagnostico')}
               className="bg-violet-600 hover:bg-violet-700 text-white px-8 py-4 rounded-xl font-bold transition-colors inline-flex items-center gap-2"
             >
               Agenda una reunión estratégica
               <ArrowRight className="w-5 h-5" />
-            </button>
+            </motion.button>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">Sin compromiso · 30 min · diagnóstico inicial</p>
           </div>
         </div>
@@ -1337,21 +1435,21 @@ function AppContent() {
           </div>
           <div className="grid md:grid-cols-3 gap-12 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800 transition-colors duration-300">
             <div className="text-center px-4">
-              <div className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-indigo-700 dark:from-indigo-300 dark:to-indigo-400 mb-4 transition-colors duration-300">{t.home.impact1Val}</div>
+              <AnimatedMetricValue className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-indigo-700 dark:from-indigo-300 dark:to-indigo-400 mb-4 transition-colors duration-300" value={t.home.impact1Val} />
               <div className="text-xl font-medium text-slate-700 dark:text-slate-300 flex items-center justify-center gap-2 transition-colors duration-300">
                 <Clock className="w-6 h-6 text-indigo-600 dark:text-indigo-300" /> {t.home.impact1Title}
               </div>
               <p className="mt-4 text-slate-600 dark:text-slate-400 text-sm transition-colors duration-300">{t.home.impact1Desc}</p>
             </div>
             <div className="text-center px-4 pt-12 md:pt-0">
-              <div className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-600 to-violet-700 dark:from-violet-300 dark:to-violet-400 mb-4 transition-colors duration-300">{t.home.impact2Val}</div>
+              <AnimatedMetricValue className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-600 to-violet-700 dark:from-violet-300 dark:to-violet-400 mb-4 transition-colors duration-300" value={t.home.impact2Val} />
               <div className="text-xl font-medium text-slate-700 dark:text-slate-300 flex items-center justify-center gap-2 transition-colors duration-300">
                 <PieChart className="w-6 h-6 text-violet-600 dark:text-violet-300" /> {t.home.impact2Title}
               </div>
               <p className="mt-4 text-slate-600 dark:text-slate-400 text-sm transition-colors duration-300">{t.home.impact2Desc}</p>
             </div>
             <div className="text-center px-4 pt-12 md:pt-0">
-              <div className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-violet-600 dark:from-indigo-300 dark:to-violet-300 mb-4 transition-colors duration-300">{t.home.impact3Val}</div>
+              <AnimatedMetricValue className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-violet-600 dark:from-indigo-300 dark:to-violet-300 mb-4 transition-colors duration-300" value={t.home.impact3Val} />
               <div className="text-xl font-medium text-slate-700 dark:text-slate-300 flex items-center justify-center gap-2 transition-colors duration-300">
                 <Activity className="w-6 h-6 text-violet-600 dark:text-violet-300" /> {t.home.impact3Title}
               </div>
@@ -2588,7 +2686,13 @@ function AppContent() {
 
   const renderHomeV2 = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pb-24 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-      <section className="relative overflow-hidden border-b border-slate-200 dark:border-white/10">
+      <motion.section
+        initial={{ opacity: 0, y: 22 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.65, ease: 'easeOut' }}
+        className="relative overflow-hidden border-b border-slate-200 dark:border-white/10"
+      >
         <img
           src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=2200&q=80"
           alt="Red neuronal y flujos de datos"
@@ -2597,9 +2701,62 @@ function AppContent() {
         />
         <div className="absolute inset-0 bg-slate-950/65"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.35),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(34,211,238,0.28),_transparent_40%)]"></div>
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute left-[14%] top-[18%] w-44 h-44 rounded-full bg-cyan-400/20 blur-3xl"
+            animate={{ opacity: [0.18, 0.4, 0.18], scale: [1, 1.12, 1] }}
+            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute right-[10%] bottom-[14%] w-52 h-52 rounded-full bg-amber-300/15 blur-3xl"
+            animate={{ opacity: [0.12, 0.32, 0.12], scale: [1, 1.15, 1] }}
+            transition={{ duration: 10.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
+          />
+          {[
+            { left: '8%', top: '18%', size: 'w-1.5 h-1.5', delay: 0, duration: 7.5 },
+            { left: '16%', top: '60%', size: 'w-1 h-1', delay: 0.8, duration: 8.2 },
+            { left: '27%', top: '35%', size: 'w-1.5 h-1.5', delay: 1.2, duration: 7.1 },
+            { left: '38%', top: '74%', size: 'w-1 h-1', delay: 0.4, duration: 8.8 },
+            { left: '49%', top: '22%', size: 'w-2 h-2', delay: 1.6, duration: 9.2 },
+            { left: '58%', top: '63%', size: 'w-1.5 h-1.5', delay: 0.3, duration: 8.1 },
+            { left: '69%', top: '30%', size: 'w-1 h-1', delay: 1.9, duration: 7.8 },
+            { left: '78%', top: '54%', size: 'w-1.5 h-1.5', delay: 0.9, duration: 8.6 },
+            { left: '88%', top: '20%', size: 'w-2 h-2', delay: 1.1, duration: 9.4 },
+            { left: '92%', top: '72%', size: 'w-1 h-1', delay: 0.6, duration: 7.4 },
+            { left: '34%', top: '10%', size: 'w-1 h-1', delay: 1.4, duration: 8.7 },
+            { left: '63%', top: '82%', size: 'w-1.5 h-1.5', delay: 0.2, duration: 7.9 },
+            { left: '11%', top: '42%', size: 'w-2 h-2', delay: 0.7, duration: 8.4 },
+            { left: '22%', top: '14%', size: 'w-1.5 h-1.5', delay: 1.8, duration: 9.1 },
+            { left: '31%', top: '52%', size: 'w-1 h-1', delay: 0.5, duration: 7.3 },
+            { left: '43%', top: '86%', size: 'w-1.5 h-1.5', delay: 1.5, duration: 8.3 },
+            { left: '54%', top: '40%', size: 'w-2 h-2', delay: 0.1, duration: 9.6 },
+            { left: '66%', top: '16%', size: 'w-1.5 h-1.5', delay: 1.3, duration: 8.9 },
+            { left: '74%', top: '68%', size: 'w-2 h-2', delay: 0.4, duration: 7.7 },
+            { left: '84%', top: '39%', size: 'w-1 h-1', delay: 1.6, duration: 8.5 },
+            { left: '95%', top: '50%', size: 'w-1.5 h-1.5', delay: 0.9, duration: 9.3 }
+          ].map((particle, i) => (
+            <motion.span
+              key={i}
+              className={`absolute rounded-full bg-cyan-200/70 shadow-[0_0_10px_rgba(103,232,249,0.65)] ${particle.size}`}
+              style={{ left: particle.left, top: particle.top }}
+              animate={{
+                y: [0, -30, 0],
+                x: [0, 12, 0],
+                opacity: [0.2, 0.9, 0.2],
+                scale: [1, 1.45, 1]
+              }}
+              transition={{
+                duration: particle.duration,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: particle.delay
+              }}
+            />
+          ))}
+        </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-28">
           <div className="grid lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-8">
+            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55 }} className="lg:col-span-8">
               <p className="inline-flex items-center px-3 py-1 rounded-md bg-white/80 dark:bg-white/10 border border-slate-300 dark:border-white/15 text-xs font-bold tracking-wider uppercase mb-6 text-slate-900 dark:text-slate-100">
                 CAIOExperts.ai | Chief AI Officer as a Service
               </p>
@@ -2614,22 +2771,31 @@ function AppContent() {
                 Para empresas de 50-500 empleados con presion por ejecutar IA.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 18 }}
                   onClick={() => setCurrentPage('diagnostico')}
                   className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-4 rounded-md font-bold inline-flex items-center justify-center gap-2 transition-colors"
                 >
                   Agenda tu diagnostico de IA (30 min)
                   <ArrowRight className="w-5 h-5" />
-                </button>
+                </motion.button>
                 <div className="text-sm text-slate-200 self-center">Sin compromiso · Roadmap inicial · Capacidad limitada</div>
               </div>
               <p className="mt-3 text-xs text-slate-300">
                 No es para empresas sin presupuesto o en fase de prueba.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="lg:col-span-4">
-              <div className="rounded-md border border-white/20 bg-white/15 backdrop-blur-md p-6">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="lg:col-span-4"
+            >
+              <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="rounded-md border border-white/20 bg-white/15 backdrop-blur-md p-6">
                 <p className="text-xs font-bold uppercase tracking-widest text-cyan-700 dark:text-cyan-300 mb-4">En 90 dias</p>
                 <div className="space-y-3">
                   <div className="rounded-sm bg-slate-950/55 border border-white/15 p-3">
@@ -2648,13 +2814,19 @@ function AppContent() {
                     <p className="font-semibold text-white">KPIs activos + plan de escalado</p>
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <motion.section
+        initial={{ opacity: 0, y: 22 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14"
+      >
         <div className="grid md:grid-cols-3 gap-4">
           {[
             {
@@ -2670,17 +2842,25 @@ function AppContent() {
               image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80'
             }
           ].map((item, i) => (
-            <div key={i} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ delay: i * 0.08, duration: 0.4 }}
+              whileHover={{ y: -4 }}
+              className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-5"
+            >
               <img src={item.image} alt="Contexto de negocio e IA" className="h-36 w-full object-cover rounded-md mb-4" loading="lazy" />
               <p className="text-sm font-semibold">{item.text}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-2 gap-6">
-          <div className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-7">
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-7">
             <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=80" alt="Desalineacion tecnologica" className="h-44 w-full object-cover rounded-md mb-5" loading="lazy" />
             <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-4">Problema</p>
             <h2 className="text-3xl font-black mb-5">El problema no es la IA. Es la falta de liderazgo.</h2>
@@ -2690,8 +2870,8 @@ function AppContent() {
               <li>- Equipos desalineados</li>
               <li>- Dependencia de proveedores para decidir</li>
             </ul>
-          </div>
-          <div className="rounded-md border border-cyan-300/60 dark:border-cyan-400/30 bg-gradient-to-br from-cyan-100 to-amber-100 dark:from-cyan-900/30 dark:to-amber-900/20 p-7">
+          </motion.div>
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-cyan-300/60 dark:border-cyan-400/30 bg-gradient-to-br from-cyan-100 to-amber-100 dark:from-cyan-900/30 dark:to-amber-900/20 p-7">
             <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1400&q=80" alt="Equipo ejecutando roadmap IA" className="h-44 w-full object-cover rounded-md mb-5" loading="lazy" />
             <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-4">Solucion</p>
             <h2 className="text-3xl font-black mb-5">Actuamos como tu Chief AI Officer</h2>
@@ -2701,9 +2881,9 @@ function AppContent() {
               <li>- Lideramos ejecucion con tu equipo</li>
               <li>- Escalamos lo que funciona con KPIs</li>
             </ul>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="rounded-xl border border-cyan-300/50 dark:border-cyan-400/30 bg-cyan-50/80 dark:bg-cyan-900/10 p-7">
@@ -2720,31 +2900,31 @@ function AppContent() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <h3 className="text-3xl font-black mb-6">No somos consultores. Somos parte de tu equipo.</h3>
         <div className="grid md:grid-cols-3 gap-5">
-          <div className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
             <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt="Consultoria tradicional" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
             <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">Consultoras</p>
             <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Recomendaciones y slides</p>
             <p className="font-semibold">Si: Direccion y ejecucion continua</p>
-          </div>
-          <div className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
+          </motion.div>
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
             <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80" alt="Freelancer trabajando solo" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
             <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">Freelancers</p>
             <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Soluciones sueltas</p>
             <p className="font-semibold">Si: Prioridades y roadmap de negocio</p>
-          </div>
-          <div className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
+          </motion.div>
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
             <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" alt="Equipo interno tecnico" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
             <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">CTO interno</p>
             <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Foco tecnico</p>
             <p className="font-semibold">Si: Foco en impacto y adopcion</p>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <h3 className="text-3xl font-black mb-6 text-center">FAQ de decision</h3>
         <div className="space-y-4">
           {[
@@ -2752,13 +2932,21 @@ function AppContent() {
             ['¿Cuanto tarda en verse impacto?', 'En semanas ves claridad y en 60-90 dias tienes ejecucion y KPIs en marcha.'],
             ['¿Como trabajais con mi equipo?', 'Nos integramos con direccion y responsables para coordinar negocio, operacion y tecnologia.']
           ].map(([q, a], i) => (
-            <div key={i} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ delay: i * 0.08, duration: 0.35 }}
+              whileHover={{ y: -3 }}
+              className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-5"
+            >
               <p className="font-bold mb-2">{q}</p>
               <p className="text-sm text-slate-700 dark:text-slate-300">{a}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
     </motion.div>
   );
 
@@ -2771,13 +2959,32 @@ function AppContent() {
           <Logo />
           
           <div className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
-            <button onClick={() => setCurrentPage('home')} className={`hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === 'home' ? 'text-cyan-600 dark:text-cyan-400' : ''}`}>Inicio</button>
-            <button onClick={() => setCurrentPage('caio-service')} className={`hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === 'caio-service' ? 'text-cyan-600 dark:text-cyan-400' : ''}`}>CAIO as a Service</button>
-            <button onClick={() => setCurrentPage('resultados')} className={`hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === 'resultados' ? 'text-cyan-600 dark:text-cyan-400' : ''}`}>Resultados</button>
-            <button onClick={() => setCurrentPage('como-trabajamos')} className={`hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === 'como-trabajamos' ? 'text-cyan-600 dark:text-cyan-400' : ''}`}>Como trabajamos</button>
-            <button onClick={() => setCurrentPage('sobre-nosotros')} className={`hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === 'sobre-nosotros' ? 'text-cyan-600 dark:text-cyan-400' : ''}`}>Sobre nosotros</button>
-            <button onClick={() => setCurrentPage('faq')} className={`hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === 'faq' ? 'text-cyan-600 dark:text-cyan-400' : ''}`}>FAQ</button>
-            <button onClick={() => setCurrentPage('diagnostico')} className={`hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === 'diagnostico' ? 'text-cyan-600 dark:text-cyan-400' : ''}`}>Diagnostico</button>
+            {[
+              { key: 'home', label: 'Inicio' },
+              { key: 'caio-service', label: 'CAIO as a Service' },
+              { key: 'resultados', label: 'Resultados' },
+              { key: 'como-trabajamos', label: 'Como trabajamos' },
+              { key: 'sobre-nosotros', label: 'Sobre nosotros' },
+              { key: 'faq', label: 'FAQ' },
+              { key: 'diagnostico', label: 'Diagnostico' }
+            ].map((item) => (
+              <motion.button
+                key={item.key}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setCurrentPage(item.key)}
+                className={`relative pb-1 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === item.key ? 'text-cyan-600 dark:text-cyan-400' : ''}`}
+              >
+                {item.label}
+                {currentPage === item.key && (
+                  <motion.span
+                    layoutId="nav-active-underline"
+                    className="absolute left-0 right-0 -bottom-0.5 h-0.5 rounded-full bg-cyan-500"
+                    transition={{ type: 'spring', stiffness: 360, damping: 30 }}
+                  />
+                )}
+              </motion.button>
+            ))}
           </div>
 
           <div className="flex items-center gap-3">
@@ -2823,34 +3030,45 @@ function AppContent() {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-grow flex flex-col">
-        {currentPage === 'home' && renderHomeV2()}
-        {currentPage === 'como-trabajamos' && renderComoTrabajamos()}
-        {currentPage === 'resultados' && (
-          <CasosDeUso 
-            t={t} 
-            onContact={() => setCurrentPage('diagnostico')}
-          />
-        )}
-        {currentPage === 'preus-i-serveis' && (
-          <PricingServices 
-            t={t} 
-            onBookDemo={() => setShowDemoModal(true)} 
-            onContactClick={() => setCurrentPage('diagnostico')}
-          />
-        )}
-        {currentPage === 'sobre-nosotros' && renderSobreNosotros()}
-        {currentPage === 'faq' && renderFaq()}
-        {currentPage === 'diagnostico' && renderContacto()}
-        {currentPage === 'contacto' && renderContacto()}
-        {currentPage === 'legal' && renderLegal()}
-        {currentPage === 'privacy' && renderPrivacy()}
-        {currentPage === 'cookies' && renderCookies()}
-        {currentPage === 'caio-service' && (
-          <TecnicoContratacion 
-            t={t} 
-            onBookDemo={() => setShowDemoModal(true)} 
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
+            className="flex-grow flex flex-col"
+          >
+            {currentPage === 'home' && renderHomeV2()}
+            {currentPage === 'como-trabajamos' && renderComoTrabajamos()}
+            {currentPage === 'resultados' && (
+              <CasosDeUso 
+                t={t} 
+                onContact={() => setCurrentPage('diagnostico')}
+              />
+            )}
+            {currentPage === 'preus-i-serveis' && (
+              <PricingServices 
+                t={t} 
+                onBookDemo={() => setShowDemoModal(true)} 
+                onContactClick={() => setCurrentPage('diagnostico')}
+              />
+            )}
+            {currentPage === 'sobre-nosotros' && renderSobreNosotros()}
+            {currentPage === 'faq' && renderFaq()}
+            {currentPage === 'diagnostico' && renderContacto()}
+            {currentPage === 'contacto' && renderContacto()}
+            {currentPage === 'legal' && renderLegal()}
+            {currentPage === 'privacy' && renderPrivacy()}
+            {currentPage === 'cookies' && renderCookies()}
+            {currentPage === 'caio-service' && (
+              <TecnicoContratacion 
+                t={t} 
+                onBookDemo={() => setShowDemoModal(true)} 
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* FOOTER */}

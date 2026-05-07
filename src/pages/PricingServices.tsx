@@ -7,7 +7,13 @@ export function PricingServices({ t, onBookDemo, onContactClick }: { t: any, onB
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] pt-24 relative overflow-hidden transition-colors duration-500">
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="min-h-screen bg-slate-50 dark:bg-[#020617] pt-24 relative overflow-hidden transition-colors duration-500"
+    >
       <img
         src="https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=2400&q=80"
         alt="Entorno visual de inteligencia artificial"
@@ -686,6 +692,6 @@ export function PricingServices({ t, onBookDemo, onContactClick }: { t: any, onB
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
