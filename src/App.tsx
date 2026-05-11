@@ -73,6 +73,7 @@ import { PricingServices } from './pages/PricingServices';
 import { CasosDeUso } from './pages/CasosDeUso';
 import EfficiencyCalculator from './components/EfficiencyCalculator';
 import { supabase } from './lib/supabase';
+import { GlobalVideoBackdrop } from './components/GlobalVideoBackdrop';
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
@@ -463,11 +464,11 @@ function AppContent() {
 
   const Logo = () => (
     <button onClick={() => setCurrentPage('home')} className="flex items-center gap-1.5 focus:outline-none">
-      <div className="w-9 h-9 rounded-md border border-cyan-300 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center">
-        <Cpu className="w-5 h-5 text-cyan-700 dark:text-cyan-300" strokeWidth={2} />
+      <div className="flex h-9 w-9 items-center justify-center rounded-md border border-slate-900 bg-slate-100 dark:border-white dark:bg-white/10">
+        <Cpu className="h-5 w-5 text-slate-900 dark:text-white" strokeWidth={2} />
       </div>
-      <span className="font-bold text-2xl tracking-tight ml-1 text-slate-900 dark:text-white">
-        <span className="text-cyan-600 dark:text-cyan-400">CAIO</span>
+      <span className="ml-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <span className="text-slate-950 dark:text-white">CAIO</span>
         <span className="text-amber-500 dark:text-amber-400">Experts.ai</span>
       </span>
     </button>
@@ -619,7 +620,7 @@ function AppContent() {
               transition={{ duration: 0.5, delay: 0.15 }}
               className="lg:col-span-5"
             >
-              <InteractiveTiltCard className="relative bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-7 shadow-xl">
+              <InteractiveTiltCard className="glass-card relative rounded-[2rem] p-7">
                 <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-violet-200/50 dark:bg-violet-500/20 blur-2xl"></div>
                 <div className="relative">
                   <div className="w-14 h-14 bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-300 rounded-2xl flex items-center justify-center mb-5">
@@ -757,16 +758,15 @@ function AppContent() {
                 { icon: <FileSearch className="w-5 h-5 text-violet-600 dark:text-violet-300" />, title: t.home.docCard2Title, desc: t.home.docCard2Desc },
                 { icon: <Send className="w-5 h-5 text-fuchsia-600 dark:text-fuchsia-300" />, title: t.home.docCard3Title, desc: t.home.docCard3Desc }
               ].map((card, idx) => (
-                <InteractiveTiltCard
-                  key={idx}
-                  className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-5"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
-                    {card.icon}
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">{card.title}</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{card.desc}</p>
-                </InteractiveTiltCard>
+                <div key={idx}>
+                  <InteractiveTiltCard className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-5">
+                    <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                      {card.icon}
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">{card.title}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{card.desc}</p>
+                  </InteractiveTiltCard>
+                </div>
               ))}
             </div>
 
@@ -1199,7 +1199,7 @@ function AppContent() {
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1, type: "spring", damping: 20 }}
                   whileHover={{ y: -8, scale: 1.02 }}
-                  className={`group relative p-6 rounded-3xl bg-white/80 dark:bg-slate-900/60 backdrop-blur-3xl border border-slate-200 dark:border-slate-700 hover:border-${node.color}-400 dark:hover:border-${node.color}-500/50 transition-all duration-500 shadow-xl dark:shadow-2xl flex flex-col justify-between min-h-[200px] overflow-hidden`}
+                  className="group relative flex min-h-[200px] flex-col justify-between overflow-hidden rounded-3xl p-6 transition-all duration-500 glass-card hover:border-white/35"
                 >
                   {/* Background Gradient Glow */}
                   <div className={`absolute inset-0 bg-gradient-to-br from-${node.color}-400/5 dark:from-${node.color}-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
@@ -1234,7 +1234,7 @@ function AppContent() {
                 <div className="absolute -top-8 -right-8 w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px] animate-pulse"></div>
                 <div className="absolute -bottom-8 -left-8 w-48 h-48 bg-cyan-500/10 rounded-full blur-[80px] animate-pulse delay-700"></div>
 
-                <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl dark:shadow-2xl border border-slate-200 dark:border-slate-700 relative z-10 overflow-hidden group transition-colors duration-300">
+                <div className="glass-card group relative z-10 overflow-hidden rounded-3xl p-6 transition-colors duration-300">
                   {/* Scanning Line Effect */}
                   <motion.div 
                     animate={{ top: ['0%', '100%', '0%'] }}
@@ -1552,7 +1552,7 @@ function AppContent() {
             >
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 rounded-[4rem] -m-4 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
               
-              <div className="relative bg-slate-50/50 dark:bg-slate-900/40 backdrop-blur-xl rounded-[3.5rem] p-8 md:p-14 border border-slate-200/50 dark:border-slate-800/50 shadow-2xl transition-all duration-500 hover:shadow-emerald-500/10">
+              <div className="glass-card relative rounded-[3.5rem] p-8 transition-all duration-500 hover:shadow-emerald-500/10 md:p-14">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-black tracking-[0.15em] uppercase mb-8 border border-emerald-200/50 dark:border-emerald-500/20">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   {t.home.securityEcoSection.label}
@@ -1692,7 +1692,7 @@ function AppContent() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ y: -8, transition: { duration: 0.3 } }}
-                className="group bg-slate-900/40 backdrop-blur-sm p-8 rounded-3xl border border-slate-800 hover:border-slate-700 hover:bg-slate-900/60 transition-all duration-500 flex flex-col items-center text-center shadow-lg"
+                className="glass-card group flex flex-col items-center rounded-3xl border border-white/10 p-8 text-center shadow-lg transition-all duration-500 hover:border-white/20"
               >
                 <div className="h-20 flex items-center justify-center mb-8 w-full transition-all duration-500">
                   <img 
@@ -1917,7 +1917,7 @@ function AppContent() {
                 transition={{ delay: i * 0.05 }}
                 whileHover={{ y: -12, scale: 1.02 }}
                 onClick={() => mod.details && setExpandedMod(i)}
-                className="group relative bg-white dark:bg-slate-900/40 backdrop-blur-xl p-10 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-xl hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 cursor-pointer flex flex-col items-center text-center overflow-hidden"
+                className="glass-card group relative flex cursor-pointer flex-col items-center overflow-hidden rounded-[3rem] p-10 text-center shadow-xl transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10"
               >
                 {/* Background Accent */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-colors"></div>
@@ -2104,7 +2104,7 @@ function AppContent() {
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8 py-2 pr-4">
-            <div className="inline-flex items-center px-4 py-1.5 rounded-md bg-white/80 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 text-xs font-black uppercase tracking-[0.14em] text-black dark:text-white mb-4">
+            <div className="glass-card mb-4 inline-flex items-center rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-slate-900 dark:text-white">
               Diagnostico
             </div>
             <h1 className="text-4xl md:text-6xl font-black leading-[0.95] text-slate-900 dark:text-white mb-6">
@@ -2115,7 +2115,7 @@ function AppContent() {
               Esta es la llamada para ordenar prioridades, eliminar ruido y definir un plan realista de ejecucion.
             </p>
           </div>
-          <div className="lg:col-span-4 bg-gradient-to-br from-[#f0f9ff] to-[#eef2ff] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+          <div className="glass-card lg:col-span-4 p-8">
             <h2 className="text-xl font-black mb-5">CTA a calendario</h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-5">
               Sin compromiso. Sesion ejecutiva enfocada a negocio.
@@ -2124,7 +2124,7 @@ function AppContent() {
               href="https://calendly.com/eric-martinez-acceleralia/30min"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-bold text-white transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
             >
               Reservar en calendario
               <ArrowRight className="w-4 h-4" />
@@ -2135,7 +2135,7 @@ function AppContent() {
 
       <section className="py-10 px-4">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8">
-          <div className="bg-gradient-to-br from-[#ecfdf5] to-[#f0fdf4] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+          <div className="glass-card p-8">
             <h2 className="text-2xl font-black mb-5">Que incluye el diagnostico</h2>
             <div className="space-y-3">
               {[
@@ -2151,7 +2151,7 @@ function AppContent() {
               ))}
             </div>
           </div>
-          <div className="bg-gradient-to-br from-[#fff7ed] to-[#fffbeb] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+          <div className="glass-card p-8">
             <h2 className="text-2xl font-black mb-5">Que obtiene tu equipo</h2>
             <div className="space-y-3">
               {[
@@ -2171,7 +2171,7 @@ function AppContent() {
       </section>
 
       <section className="py-10 px-4">
-        <div className="max-w-7xl mx-auto bg-gradient-to-br from-[#eff6ff] to-[#f8fafc] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+        <div className="glass-card mx-auto max-w-7xl p-8">
           <h2 className="text-3xl font-black mb-8">Que analizamos en la sesion</h2>
           <div className="grid md:grid-cols-4 gap-5">
             {[
@@ -2180,7 +2180,7 @@ function AppContent() {
               { title: 'Capacidad', desc: 'Equipo, herramientas y nivel de adopcion real.' },
               { title: 'Impacto', desc: 'Areas donde el retorno puede ser mas rapido.' }
             ].map((item, i) => (
-              <div key={i} className="p-5 border border-slate-300 dark:border-slate-700 rounded-lg bg-gradient-to-r from-white/95 to-slate-100/80 dark:from-slate-800/60 dark:to-slate-700/50">
+              <div key={i} className="glass-card glass-card--sm p-5">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mb-2">Bloque {i + 1}</p>
                 <h3 className="text-xl font-black mb-2">{item.title}</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-300">{item.desc}</p>
@@ -2191,7 +2191,7 @@ function AppContent() {
       </section>
 
       <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto bg-gradient-to-br from-[#ede9fe] to-[#e0f2fe] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-10 text-center">
+        <div className="glass-card mx-auto max-w-5xl p-10 text-center">
           <h2 className="text-4xl md:text-5xl font-black mb-5 leading-[0.95]">Empieza facil: una llamada, un plan claro.</h2>
           <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
             Objetivo de esta pagina: convertir visitas en llamadas cualificadas.
@@ -2200,7 +2200,7 @@ function AppContent() {
             href="https://calendly.com/eric-martinez-acceleralia/30min"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-8 py-4 font-bold text-white transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
           >
             Agendar diagnostico
             <ArrowRight className="w-5 h-5" />
@@ -2220,12 +2220,12 @@ function AppContent() {
           >
             &larr; {t.legalPage.backToHome}
           </button>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+          <span className="glass-card inline-flex rounded-full px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
             {t.legalPage.lastUpdated}
           </span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 md:p-12 prose prose-slate dark:prose-invert max-w-none">
+        <div className="glass-card prose prose-slate max-w-none rounded-3xl p-8 md:p-12 dark:prose-invert">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-8">{t.legalPage.title}</h1>
           
           <h2 className="text-xl font-bold text-green-700 dark:text-green-500 mt-8 mb-4">{t.legalPage.idTitle}</h2>
@@ -2311,12 +2311,12 @@ function AppContent() {
           >
             &larr; {t.privacy.backToHome}
           </button>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+          <span className="glass-card inline-flex rounded-full px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
             {t.privacy.lastUpdated}
           </span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 md:p-12 prose prose-slate dark:prose-invert max-w-none">
+        <div className="glass-card prose prose-slate max-w-none rounded-3xl p-8 md:p-12 dark:prose-invert">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-8">{t.privacy.title}</h1>
           
           {t.privacy.content.map((section, index) => (
@@ -2358,12 +2358,12 @@ function AppContent() {
           >
             &larr; {t.cookies.backToHome}
           </button>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+          <span className="glass-card inline-flex rounded-full px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
             {t.cookies.lastUpdated}
           </span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 md:p-12 prose prose-slate dark:prose-invert max-w-none">
+        <div className="glass-card prose prose-slate max-w-none rounded-3xl p-8 md:p-12 dark:prose-invert">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-8" data-i18n="cookies.title">{t.cookies.title}</h1>
           
           {(t.cookies.sections as any[]).map((section, index) => (
@@ -2479,14 +2479,14 @@ function AppContent() {
                 { title: 'Enfoque', desc: 'No somos consultores de slides: ejecutamos con tu equipo.' },
                 { title: 'Filosofia', desc: 'Claridad, priorizacion y resultados medibles por encima del ruido.' }
               ].map((item, i) => (
-                <div key={i} className="p-5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/60">
+                <div key={i} className="glass-card p-5">
                   <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mb-2">{item.title}</p>
                   <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{item.desc}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="lg:col-span-4 bg-gradient-to-br from-[#f0f9ff] to-[#eef2ff] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+          <div className="glass-card lg:col-span-4 p-8">
             <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt="Sesion ejecutiva" className="w-full h-36 object-cover rounded-md mb-5" loading="lazy" />
             <h2 className="text-xl font-black mb-5">Confianza antes de hablar</h2>
             <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
@@ -2523,7 +2523,7 @@ function AppContent() {
             ['Necesito equipo tecnico interno', 'No necesariamente. Adaptamos el ritmo al equipo que ya tengas.'],
             ['Y si ya hacemos cosas con IA', 'Mejor: ordenamos, priorizamos y aceleramos lo que realmente da retorno.']
           ].map(([q, a], i) => (
-            <div key={i} className="p-5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/60">
+            <div key={i} className="glass-card p-5">
               <p className="font-black text-slate-900 dark:text-white mb-2">{q}</p>
               <p className="text-sm text-slate-600 dark:text-slate-300">{a}</p>
             </div>
@@ -2556,7 +2556,7 @@ function AppContent() {
             { step: '03', title: 'Implementacion', desc: 'Acompañamos ejecucion para que las iniciativas salgan.', image: '/images/Portada4.jpg' },
             { step: '04', title: 'Escalado', desc: 'Escalamos lo que funciona con KPIs de negocio.', image: '/images/Portada5.jpg' }
           ].map((item, i) => (
-            <div key={i} className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900/60 overflow-hidden">
+            <div key={i} className="glass-card overflow-hidden rounded-xl">
               <img src={item.image} alt={item.title} className="w-full h-44 object-cover" referrerPolicy="no-referrer" />
               <div className="p-6">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mb-2">Paso {item.step}</p>
@@ -2756,33 +2756,16 @@ function AppContent() {
   );
 
   const renderHomeV2 = () => (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pb-24 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative pb-24 text-slate-900 dark:text-slate-100">
       <motion.section
         initial={{ opacity: 0, y: 22 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.65, ease: 'easeOut' }}
-        className="relative overflow-hidden border-b border-slate-200 dark:border-white/10"
+        className="relative z-10 overflow-hidden border-b border-white/10"
       >
-        <img
-          src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=2200&q=80"
-          alt="Red neuronal y flujos de datos"
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-slate-950/65"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.35),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(34,211,238,0.28),_transparent_40%)]"></div>
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <motion.div
-            className="absolute left-[14%] top-[18%] w-44 h-44 rounded-full bg-cyan-400/20 blur-3xl"
-            animate={{ opacity: [0.18, 0.4, 0.18], scale: [1, 1.12, 1] }}
-            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute right-[10%] bottom-[14%] w-52 h-52 rounded-full bg-amber-300/15 blur-3xl"
-            animate={{ opacity: [0.12, 0.32, 0.12], scale: [1, 1.15, 1] }}
-            transition={{ duration: 10.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-          />
+        <div className="absolute inset-0 bg-slate-950/35" />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {[
             { left: '8%', top: '18%', size: 'w-1.5 h-1.5', delay: 0, duration: 7.5 },
             { left: '16%', top: '60%', size: 'w-1 h-1', delay: 0.8, duration: 8.2 },
@@ -2808,13 +2791,13 @@ function AppContent() {
           ].map((particle, i) => (
             <motion.span
               key={i}
-              className={`absolute rounded-full bg-cyan-200/70 shadow-[0_0_10px_rgba(103,232,249,0.65)] ${particle.size}`}
+              className={`absolute rounded-full bg-white/15 shadow-[0_0_6px_rgba(255,255,255,0.12)] ${particle.size}`}
               style={{ left: particle.left, top: particle.top }}
               animate={{
-                y: [0, -30, 0],
-                x: [0, 12, 0],
-                opacity: [0.2, 0.9, 0.2],
-                scale: [1, 1.45, 1]
+                y: [0, -14, 0],
+                x: [0, 5, 0],
+                opacity: [0.06, 0.28, 0.06],
+                scale: [1, 1.12, 1]
               }}
               transition={{
                 duration: particle.duration,
@@ -2825,10 +2808,10 @@ function AppContent() {
             />
           ))}
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-28">
-          <div className="grid lg:grid-cols-12 gap-10 items-center">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-28">
+          <div className="grid items-center gap-10 lg:grid-cols-12">
             <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55 }} className="lg:col-span-8">
-              <p className="inline-flex items-center px-3 py-1 rounded-md bg-white/80 dark:bg-white/10 border border-slate-300 dark:border-white/15 text-xs font-bold tracking-wider uppercase mb-6 text-slate-900 dark:text-slate-100">
+              <p className="glass-card mb-6 inline-flex items-center px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
                 CAIOExperts.ai | Chief AI Officer as a Service
               </p>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight text-white">
@@ -2838,7 +2821,7 @@ function AppContent() {
               <p className="mt-6 text-lg md:text-xl text-slate-100 max-w-3xl">
                 Ponemos un CAIO dentro de tu empresa para convertir iniciativas sueltas en direccion, velocidad y resultados medibles.
               </p>
-              <p className="mt-3 text-sm font-semibold text-cyan-200">
+              <p className="mt-3 text-sm font-semibold text-amber-100/90">
                 Para empresas de 50-500 empleados con presion por ejecutar IA.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
@@ -2847,7 +2830,7 @@ function AppContent() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 320, damping: 18 }}
                   onClick={() => setCurrentPage('diagnostico')}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-4 rounded-md font-bold inline-flex items-center justify-center gap-2 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-8 py-4 font-bold text-slate-900 shadow-lg shadow-black/25 ring-1 ring-white/30 transition-colors hover:bg-slate-100"
                 >
                   Agenda tu diagnostico de IA (30 min)
                   <ArrowRight className="w-5 h-5" />
@@ -2866,20 +2849,20 @@ function AppContent() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="lg:col-span-4"
             >
-              <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="rounded-md border border-white/20 bg-white/15 backdrop-blur-md p-6">
-                <p className="text-xs font-bold uppercase tracking-widest text-cyan-700 dark:text-cyan-300 mb-4">En 90 dias</p>
+              <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="glass-card p-6">
+                <p className="text-xs font-bold uppercase tracking-widest text-amber-200/95 dark:text-amber-100/90 mb-4">En 90 dias</p>
                 <div className="space-y-3">
-                  <div className="rounded-sm bg-slate-950/55 border border-white/15 p-3">
+                  <div className="glass-card glass-card--sm p-3">
                     <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=1200&q=80" alt="Diagnostico IA" className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
                     <p className="text-xs text-slate-300">Dia 30</p>
                     <p className="font-semibold text-white">Diagnostico + prioridades por ROI</p>
                   </div>
-                  <div className="rounded-sm bg-slate-950/55 border border-white/15 p-3">
+                  <div className="glass-card glass-card--sm p-3">
                     <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80" alt="Ejecucion de casos IA" className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
                     <p className="text-xs text-slate-300">Dia 60</p>
                     <p className="font-semibold text-white">Casos de uso en ejecucion</p>
                   </div>
-                  <div className="rounded-sm bg-slate-950/55 border border-white/15 p-3">
+                  <div className="glass-card glass-card--sm p-3">
                     <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80" alt="KPIs y escalado IA" className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
                     <p className="text-xs text-slate-300">Dia 90</p>
                     <p className="font-semibold text-white">KPIs activos + plan de escalado</p>
@@ -2896,7 +2879,7 @@ function AppContent() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14"
+        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14"
       >
         <div className="grid md:grid-cols-3 gap-4">
           {[
@@ -2920,21 +2903,21 @@ function AppContent() {
               viewport={{ once: true, amount: 0.2 }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
               whileHover={{ y: -4 }}
-              className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-5"
+              className="glass-card p-5"
             >
               <img src={item.image} alt="Contexto de negocio e IA" className="h-36 w-full object-cover rounded-md mb-4" loading="lazy" />
-              <p className="text-sm font-semibold">{item.text}</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.text}</p>
             </motion.div>
           ))}
         </div>
       </motion.section>
 
-      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-2 gap-6">
-          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-7">
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="glass-card p-7">
             <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=80" alt="Desalineacion tecnologica" className="h-44 w-full object-cover rounded-md mb-5" loading="lazy" />
             <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-4">Problema</p>
-            <h2 className="text-3xl font-black mb-5">El problema no es la IA. Es la falta de liderazgo.</h2>
+            <h2 className="mb-5 text-3xl font-black text-slate-900 dark:text-white">El problema no es la IA. Es la falta de liderazgo.</h2>
             <ul className="space-y-3 text-slate-700 dark:text-slate-300">
               <li>- Iniciativas sin direccion comun</li>
               <li>- Pilotos que no escalan</li>
@@ -2942,10 +2925,10 @@ function AppContent() {
               <li>- Dependencia de proveedores para decidir</li>
             </ul>
           </motion.div>
-          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-cyan-300/60 dark:border-cyan-400/30 bg-gradient-to-br from-cyan-100 to-amber-100 dark:from-cyan-900/30 dark:to-amber-900/20 p-7">
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-cyan-300/50 bg-gradient-to-br from-cyan-100/92 to-amber-100/92 p-7 shadow-md backdrop-blur-md dark:border-cyan-400/25 dark:from-cyan-900/45 dark:to-amber-900/35 dark:shadow-lg dark:backdrop-blur-lg">
             <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1400&q=80" alt="Equipo ejecutando roadmap IA" className="h-44 w-full object-cover rounded-md mb-5" loading="lazy" />
             <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-4">Solucion</p>
-            <h2 className="text-3xl font-black mb-5">Actuamos como tu Chief AI Officer</h2>
+            <h2 className="mb-5 text-3xl font-black text-slate-900 dark:text-white">Actuamos como tu Chief AI Officer</h2>
             <ul className="space-y-3 text-slate-800 dark:text-slate-200">
               <li>- Definimos estrategia de IA alineada a negocio</li>
               <li>- Priorizamos por impacto y viabilidad</li>
@@ -2956,10 +2939,10 @@ function AppContent() {
         </div>
       </motion.section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="rounded-xl border border-cyan-300/50 dark:border-cyan-400/30 bg-cyan-50/80 dark:bg-cyan-900/10 p-7">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="glass-card p-7 ring-1 ring-cyan-400/25 dark:ring-cyan-400/35">
           <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-3">Categoria next step</p>
-          <h3 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-3">
+          <h3 className="mb-3 text-2xl font-black text-slate-900 dark:text-white md:text-3xl">
             CTOaaS fue el paso uno. CAIOaaS embedded es el siguiente.
           </h3>
           <p className="text-slate-700 dark:text-slate-300 mb-4">
@@ -2971,22 +2954,22 @@ function AppContent() {
         </div>
       </section>
 
-      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <h3 className="text-3xl font-black mb-6">No somos consultores. Somos parte de tu equipo.</h3>
+      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <h3 className="mb-6 text-3xl font-black text-slate-900 drop-shadow-sm dark:text-white">No somos consultores. Somos parte de tu equipo.</h3>
         <div className="grid md:grid-cols-3 gap-5">
-          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="glass-card p-6">
             <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt="Consultoria tradicional" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
             <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">Consultoras</p>
             <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Recomendaciones y slides</p>
             <p className="font-semibold">Si: Direccion y ejecucion continua</p>
           </motion.div>
-          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="glass-card p-6">
             <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80" alt="Freelancer trabajando solo" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
             <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">Freelancers</p>
             <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Soluciones sueltas</p>
             <p className="font-semibold">Si: Prioridades y roadmap de negocio</p>
           </motion.div>
-          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
+          <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="glass-card p-6">
             <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" alt="Equipo interno tecnico" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
             <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">CTO interno</p>
             <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Foco tecnico</p>
@@ -2995,8 +2978,8 @@ function AppContent() {
         </div>
       </motion.section>
 
-      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <h3 className="text-3xl font-black mb-6 text-center">FAQ de decision</h3>
+      <motion.section initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <h3 className="mb-6 text-center text-3xl font-black text-slate-900 drop-shadow-sm dark:text-white">FAQ de decision</h3>
         <div className="space-y-4">
           {[
             ['¿Por que no contratar un CAIO full-time?', 'Porque necesitas liderazgo senior inmediato, con menos riesgo y sin coste fijo C-Level.'],
@@ -3010,9 +2993,9 @@ function AppContent() {
               viewport={{ once: true, amount: 0.2 }}
               transition={{ delay: i * 0.08, duration: 0.35 }}
               whileHover={{ y: -3 }}
-              className="rounded-md border border-slate-300 dark:border-white/10 bg-white dark:bg-slate-900 p-5"
+              className="glass-card p-5"
             >
-              <p className="font-bold mb-2">{q}</p>
+              <p className="mb-2 font-bold text-slate-900 dark:text-white">{q}</p>
               <p className="text-sm text-slate-700 dark:text-slate-300">{a}</p>
             </motion.div>
           ))}
@@ -3022,10 +3005,10 @@ function AppContent() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-50 transition-colors duration-300 selection:bg-green-200 dark:selection:bg-green-900 flex flex-col">
+    <div className="relative flex min-h-screen flex-col bg-transparent font-sans text-slate-900 transition-colors duration-300 selection:bg-green-200 dark:text-slate-50 dark:selection:bg-green-900">
       
       {/* NAVBAR — ancho completo */}
-      <nav className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl transition-colors shadow-sm">
+      <nav className="sticky top-0 z-50 w-full border-b border-white/15 bg-white/70 shadow-sm backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-slate-950/70">
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <Logo />
           
@@ -3044,13 +3027,13 @@ function AppContent() {
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setCurrentPage(item.key)}
-                className={`relative pb-1 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors ${currentPage === item.key ? 'text-cyan-600 dark:text-cyan-400' : ''}`}
+                className={`relative pb-1 transition-colors hover:text-amber-700 dark:hover:text-amber-300 ${currentPage === item.key ? 'text-amber-700 dark:text-amber-300' : ''}`}
               >
                 {item.label}
                 {currentPage === item.key && (
                   <motion.span
                     layoutId="nav-active-underline"
-                    className="absolute left-0 right-0 -bottom-0.5 h-0.5 rounded-full bg-cyan-500"
+                    className="absolute left-0 right-0 -bottom-0.5 h-0.5 rounded-full bg-amber-500"
                     transition={{ type: 'spring', stiffness: 360, damping: 30 }}
                   />
                 )}
@@ -3092,7 +3075,10 @@ function AppContent() {
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <button onClick={() => setCurrentPage('diagnostico')} className="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2.5 rounded-md font-semibold text-sm transition-all shadow-md hover:shadow-lg active:scale-95 shrink-0">
+            <button
+              onClick={() => setCurrentPage('diagnostico')}
+              className="shrink-0 rounded-md bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-slate-800 hover:shadow-lg active:scale-95 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+            >
               Agendar diagnostico
             </button>
           </div>
@@ -3100,7 +3086,8 @@ function AppContent() {
       </nav>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-grow flex flex-col">
+      <main className="relative flex flex-grow flex-col">
+        <GlobalVideoBackdrop shouldReduceMotion={!!shouldReduceMotion} />
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPage}
@@ -3108,7 +3095,7 @@ function AppContent() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.28, ease: 'easeOut' }}
-            className="flex-grow flex flex-col"
+            className="relative z-10 flex flex-grow flex-col"
           >
             {currentPage === 'home' && renderHomeV2()}
             {currentPage === 'como-trabajamos' && renderComoTrabajamos()}
@@ -3143,14 +3130,15 @@ function AppContent() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-slate-50 dark:bg-slate-950 py-12 border-t border-slate-200 dark:border-slate-800 mt-auto transition-colors duration-300">
+      <footer className="relative z-10 mt-auto border-t border-white/15 bg-white/75 py-12 shadow-[0_-8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-slate-950/75">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-1.5 opacity-80">
-            <div className="w-7 h-7 rounded-sm border border-cyan-300 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center">
-              <Cpu className="w-4 h-4 text-cyan-700 dark:text-cyan-300" strokeWidth={2} />
+            <div className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-900 bg-slate-100 dark:border-white dark:bg-white/10">
+              <Cpu className="h-4 w-4 text-slate-900 dark:text-white" strokeWidth={2} />
             </div>
-            <span className="font-bold text-xl tracking-tight ml-1 text-slate-800 dark:text-white transition-colors duration-300">
-              CAIOExperts.ai
+            <span className="ml-1 text-xl font-bold tracking-tight text-slate-800 transition-colors duration-300 dark:text-white">
+              <span className="text-slate-950 dark:text-white">CAIO</span>
+              <span className="text-amber-600 dark:text-amber-400">Experts.ai</span>
             </span>
           </div>
           <div className="text-slate-600 dark:text-slate-400 text-sm text-center md:text-left transition-colors duration-300">

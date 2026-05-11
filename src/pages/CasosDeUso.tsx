@@ -7,8 +7,10 @@ interface CasosDeUsoProps {
   onContact: () => void;
 }
 
+const HERO_SECTION_VIDEO =
+  'https://videos.pexels.com/video-files/3255275/3255275-hd_1920_1080_25fps.mp4';
+
 export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
-  const heroVideoUrl = 'https://videos.pexels.com/video-files/3255275/3255275-hd_1920_1080_25fps.mp4';
   const sectionReveal = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -71,10 +73,10 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.25 }}
         transition={{ duration: 0.75, ease: 'easeOut' }}
-        className="py-14 px-4 relative overflow-hidden"
+        className="relative overflow-hidden px-4 py-14"
       >
         <video
-          className="absolute inset-0 h-full w-full object-cover"
+          className="pointer-events-none absolute inset-0 z-0 h-full min-h-full w-full object-cover"
           autoPlay
           loop
           muted
@@ -82,12 +84,12 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
           preload="metadata"
           poster="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=2200&q=80"
         >
-          <source src={heroVideoUrl} type="video/mp4" />
+          <source src={HERO_SECTION_VIDEO} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-slate-950/65" />
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-8 py-2 pr-4 relative z-10">
-            <div className="inline-flex items-center px-4 py-1.5 rounded-md bg-white/85 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 text-xs font-black uppercase tracking-[0.14em] text-black dark:text-white mb-4">
+        <div className="absolute inset-0 z-[1] bg-slate-950/65" aria-hidden />
+        <div className="relative z-10 mx-auto grid max-w-7xl gap-8 lg:grid-cols-12">
+          <div className="relative z-10 py-2 pr-4 lg:col-span-8">
+            <div className="glass-card mb-4 inline-flex items-center rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-white">
               Resultados
             </div>
             <h1 className="text-4xl md:text-6xl font-black leading-[0.95] text-white mb-6">
@@ -103,7 +105,7 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.65, ease: 'easeOut', delay: 0.15 }}
-            className="lg:col-span-4 relative z-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8"
+            className="glass-card relative z-10 p-8 lg:col-span-4"
           >
             <h2 className="text-xl font-black mb-5">Que medimos</h2>
             <div className="space-y-4 text-sm text-slate-100">
@@ -135,7 +137,7 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
                 whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                 key={i}
-                className="grid md:grid-cols-12 gap-5 p-6 border border-slate-300 dark:border-slate-700 rounded-lg bg-gradient-to-r from-white/95 to-slate-100/80 dark:from-slate-800/60 dark:to-slate-700/50"
+                className="glass-card grid gap-5 p-6 md:grid-cols-12"
               >
                 <div className="md:col-span-3">
                   <div className="mb-3 rounded-md overflow-hidden border border-slate-300 dark:border-slate-700">
@@ -157,7 +159,7 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
 
       <motion.section variants={sectionReveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="py-8 px-4">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8">
-          <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="bg-gradient-to-br from-[#ecfdf5] to-[#f0fdf4] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+          <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="glass-card p-8">
             <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80" alt="Metricas y performance" className="h-40 w-full object-cover rounded-md mb-5" loading="lazy" />
             <h2 className="text-2xl font-black mb-5">Metricas orientativas</h2>
             <div className="space-y-3">
@@ -166,15 +168,15 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
               ))}
             </div>
           </motion.div>
-          <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="bg-gradient-to-br from-[#fff7ed] to-[#fffbeb] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-8">
+          <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="glass-card p-8">
             <img src="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=80" alt="Decision ejecutiva basada en datos" className="h-40 w-full object-cover rounded-md mb-5" loading="lazy" />
             <h2 className="text-2xl font-black mb-5">Antes vs Despues</h2>
             <div className="space-y-5">
-              <div className="p-4 border border-slate-300 dark:border-slate-700 rounded-lg bg-white/80 dark:bg-slate-800/50">
+              <div className="glass-card glass-card--sm p-4">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 mb-2">Antes</p>
                 <p className="text-slate-600 dark:text-slate-300">Pruebas aisladas, foco difuso, decisiones lentas y resultados poco medibles.</p>
               </div>
-              <div className="p-4 border border-slate-300 dark:border-slate-700 rounded-lg bg-white/80 dark:bg-slate-800/50">
+              <div className="glass-card glass-card--sm p-4">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 mb-2">Despues</p>
                 <p className="text-slate-700 dark:text-slate-200 font-semibold">Plan claro, ejecucion coordinada y KPIs activos para escalar lo que funciona.</p>
               </div>
@@ -184,7 +186,7 @@ export const CasosDeUso: React.FC<CasosDeUsoProps> = ({ onContact }) => {
       </motion.section>
 
       <motion.section variants={sectionReveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="py-20 px-4">
-        <motion.div whileHover={{ scale: 1.01 }} transition={{ type: 'spring', stiffness: 220, damping: 20 }} className="max-w-5xl mx-auto bg-gradient-to-br from-[#ede9fe] to-[#e0f2fe] dark:from-slate-900/70 dark:to-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl p-10">
+        <motion.div whileHover={{ scale: 1.01 }} transition={{ type: 'spring', stiffness: 220, damping: 20 }} className="glass-card mx-auto max-w-5xl p-10">
           <div className="w-20 h-20 bg-slate-500/10 dark:bg-slate-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <Target className="w-10 h-10 text-slate-600 dark:text-slate-300" />
           </div>

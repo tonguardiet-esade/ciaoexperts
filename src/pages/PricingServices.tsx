@@ -4,7 +4,6 @@ import { CheckCircle2, ArrowRight, Sparkles, Shield, Target, Zap, HelpCircle, Me
 
 export function PricingServices({ t, onBookDemo, onContactClick }: { t: any, onBookDemo: () => void, onContactClick: () => void }) {
   const tp = t.pricingPage;
-  const heroVideoUrl = 'https://videos.pexels.com/video-files/8721908/8721908-hd_1920_1080_25fps.mp4';
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 
   return (
@@ -13,19 +12,8 @@ export function PricingServices({ t, onBookDemo, onContactClick }: { t: any, onB
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="min-h-screen bg-slate-50 dark:bg-[#020617] pt-24 relative overflow-hidden transition-colors duration-500"
+      className="relative min-h-screen overflow-hidden bg-transparent pt-24 transition-colors duration-500"
     >
-      <video
-        className="absolute inset-0 h-full w-full object-cover opacity-15 dark:opacity-20 pointer-events-none"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        poster="https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=2400&q=80"
-      >
-        <source src={heroVideoUrl} type="video/mp4" />
-      </video>
       {/* Background Pattern & AI Core */}
       <div className="absolute inset-0 bg-grid-brand opacity-40 dark:opacity-20 pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-blue/20 dark:bg-brand-blue/10 blur-[120px] rounded-full pointer-events-none animate-pulse-brand" />
@@ -215,7 +203,7 @@ export function PricingServices({ t, onBookDemo, onContactClick }: { t: any, onB
             viewport={{ once: true }}
             className="max-w-4xl mx-auto mb-12"
           >
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+            <div className="glass-card flex flex-col items-center gap-6 rounded-3xl p-6 shadow-sm ring-1 ring-blue-400/20 dark:ring-blue-500/25 md:flex-row md:p-8">
               <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/20">
                 <Zap className="w-8 h-8 text-white" />
               </div>
@@ -670,7 +658,7 @@ export function PricingServices({ t, onBookDemo, onContactClick }: { t: any, onB
 
       {/* Final CTA Band */}
       <div className="relative py-24 overflow-hidden border-t border-brand-emerald/20">
-        <div className="absolute inset-0 bg-white dark:bg-[#020617] transition-colors duration-500" />
+        <div className="absolute inset-0 bg-white/30 backdrop-blur-md transition-colors duration-500 dark:bg-slate-950/40" />
         <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/10 via-brand-emerald/10 to-indigo-900/20 opacity-90" />
         <div className="absolute inset-0 bg-grid-brand opacity-10" />
         
