@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ArrowRight, 
   CheckCircle2, 
@@ -64,7 +64,15 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'motion/react';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { translations } from './translations';
+import { useTranslation } from 'react-i18next';
+import type { TranslationLocale } from './translations';
+import { i18nLngToLegacy, legacyToI18nLng } from './i18n/i18n';
+import { getHomeV2Copy } from './i18n/homeV2Copy';
+import {
+  getComoTrabajamosPageCopy,
+  getDiagnosticoPageCopy,
+  getSobreNosotrosPageCopy,
+} from './i18n/marketingFlowPages';
 import { TecnicoContratacion } from './pages/TecnicoContratacion';
 import { PricingServices } from './pages/PricingServices';
 import { CasosDeUso } from './pages/CasosDeUso';
@@ -87,9 +95,11 @@ function AppContent() {
     mass: 0.2
   });
   
-  const [lang, setLang] = useState(() => {
-    return localStorage.getItem('lang') || 'ES';
-  });
+  const { i18n } = useTranslation();
+  const lang = i18nLngToLegacy(i18n.language);
+  const t =
+    (i18n.getResourceBundle(i18n.language, 'translation') as TranslationLocale | undefined) ??
+    (i18n.getResourceBundle('es', 'translation') as TranslationLocale);
 
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -99,7 +109,7 @@ function AppContent() {
     if (path === '/como-trabajamos' || path === '/metodologia') return 'como-trabajamos';
     if (path === '/resultados' || path === '/casos-de-uso') return 'resultados';
     if (path === '/sobre-nosotros') return 'sobre-nosotros';
-    if (path === '/faq') return 'faq';
+    if (path === '/faq') return 'home';
     if (path === '/diagnostico' || path === '/contacto' || path === '/preus-i-serveis') return 'diagnostico';
     if (path === '/legal') return 'legal';
     if (path === '/privacy') return 'privacy';
@@ -160,7 +170,6 @@ function AppContent() {
                  currentPage === 'resultados' ? '/resultados' :
                  currentPage === 'como-trabajamos' ? '/como-trabajamos' :
                  currentPage === 'sobre-nosotros' ? '/sobre-nosotros' :
-                 currentPage === 'faq' ? '/faq' :
                  currentPage === 'diagnostico' ? '/diagnostico' :
                  `/${currentPage}`;
     if (window.location.pathname !== path) {
@@ -176,7 +185,7 @@ function AppContent() {
       else if (path === '/como-trabajamos' || path === '/metodologia') setCurrentPage('como-trabajamos');
       else if (path === '/resultados' || path === '/casos-de-uso' || path === '/administraciones-que-nos-gusta-lo-que-hacen') setCurrentPage('resultados');
       else if (path === '/sobre-nosotros') setCurrentPage('sobre-nosotros');
-      else if (path === '/faq') setCurrentPage('faq');
+      else if (path === '/faq') setCurrentPage('home');
       else if (path === '/diagnostico' || path === '/contacto' || path === '/preus-i-serveis') setCurrentPage('diagnostico');
       else if (path === '/legal') setCurrentPage('legal');
       else if (path === '/privacy') setCurrentPage('privacy');
@@ -219,8 +228,6 @@ function AppContent() {
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [demoErrorMessage, setDemoErrorMessage] = useState('');
 
-  const t = translations[lang as keyof typeof translations] || translations['ES'];
-
   const homeSplashBlocking =
     currentPage === 'home' && !homeSplashDismissed && !shouldReduceMotion;
   const showTopNav =
@@ -232,15 +239,48 @@ function AppContent() {
     : { opacity: 0, y: 56, scale: 0.99, filter: 'blur(6px)' };
   const homeContentShown = { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' };
 
-  const mainNavItems: { key: string; label: string }[] = [
-    { key: 'home', label: 'Inicio' },
-    { key: 'caio-service', label: 'CAIO as a Service' },
-    { key: 'resultados', label: 'Resultados' },
-    { key: 'como-trabajamos', label: 'Como trabajamos' },
-    { key: 'sobre-nosotros', label: 'Sobre nosotros' },
-    { key: 'faq', label: 'FAQ' },
-    { key: 'diagnostico', label: 'Diagnostico' }
-  ];
+  type MarketingNavT = {
+    home: string;
+    caioService: string;
+    resultados: string;
+    comoTrabajamos: string;
+    sobreNosotros: string;
+    diagnostico: string;
+    agendarDiagnostico: string;
+  };
+
+  type MarketingHeaderT = {
+    themeLight: string;
+    themeDark: string;
+    openMenu: string;
+    closeMenu: string;
+    navMenuLabel: string;
+  };
+
+  const marketingNav = (t as { marketingNav?: MarketingNavT }).marketingNav;
+  const marketingHeader = (t as { marketingHeader?: MarketingHeaderT }).marketingHeader;
+
+  const mainNavItems = useMemo(() => {
+    const mn = marketingNav;
+    if (!mn) {
+      return [
+        { key: 'home', label: 'Inicio' },
+        { key: 'caio-service', label: 'CAIO as a Service' },
+        { key: 'resultados', label: 'Resultados' },
+        { key: 'como-trabajamos', label: 'Como trabajamos' },
+        { key: 'sobre-nosotros', label: 'Sobre nosotros' },
+        { key: 'diagnostico', label: 'Diagnostico' }
+      ];
+    }
+    return [
+      { key: 'home', label: mn.home },
+      { key: 'caio-service', label: mn.caioService },
+      { key: 'resultados', label: mn.resultados },
+      { key: 'como-trabajamos', label: mn.comoTrabajamos },
+      { key: 'sobre-nosotros', label: mn.sobreNosotros },
+      { key: 'diagnostico', label: mn.diagnostico }
+    ];
+  }, [marketingNav]);
 
   const mobileNavListVariants = {
     hidden: {},
@@ -323,20 +363,6 @@ function AppContent() {
     return <div ref={elementRef} className={className}>{display}</div>;
   };
 
-  const getMapLanguage = (langCode: string) => {
-    const map: Record<string, string> = {
-      'ES': 'es',
-      'EN': 'en',
-      'CA': 'ca',
-      'FR': 'fr',
-      'DE': 'de',
-      'PT': 'pt',
-      'ZH': 'zh'
-    };
-    return map[langCode] || 'es';
-  };
-
-  // Save language preference to localStorage
   useEffect(() => {
     localStorage.setItem('lang', lang);
   }, [lang]);
@@ -552,7 +578,7 @@ function AppContent() {
       </div>
       <span className="ml-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
         <span className="text-slate-950 dark:text-white">CAIO</span>
-        <span className="text-amber-500 dark:text-amber-400">Experts.ai</span>
+        <span className="text-amber-400">Experts.ai</span>
       </span>
     </button>
   );
@@ -2184,26 +2210,27 @@ function AppContent() {
 
   const renderContacto = () => {
     const hm = !!shouldReduceMotion;
+    const d = getDiagnosticoPageCopy(lang);
     return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="min-h-screen pt-20">
       <motion.section className="py-16 px-4" {...sectionEnter(hm, 'b', 0, 0.18)}>
         <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-8">
           <motion.div className="lg:col-span-8 py-2 pr-4" {...sectionEnter(hm, 'l', 0.06, 0.22)}>
             <div className="glass-card mb-4 inline-flex items-center rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-slate-900 dark:text-white">
-              Diagnostico
+              {d.badge}
             </div>
             <h1 className="text-4xl md:text-6xl font-black leading-[0.95] text-slate-900 dark:text-white mb-6">
-              En 45 minutos sabras
-              <span className="block">donde esta tu mayor retorno en IA.</span>
+              {d.title1}
+              <span className="block">{d.title2}</span>
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-4xl">
-              Esta es la llamada para ordenar prioridades, eliminar ruido y definir un plan realista de ejecucion.
+              {d.lead}
             </p>
           </motion.div>
           <motion.div className="glass-card lg:col-span-4 p-8" {...sectionEnter(hm, 'r', 0.1, 0.22)}>
-            <h2 className="text-xl font-black mb-5">CTA a calendario</h2>
+            <h2 className="text-xl font-black mb-5">{d.calendarCardTitle}</h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-5">
-              Sin compromiso. Sesion ejecutiva enfocada a negocio.
+              {d.calendarCardBody}
             </p>
             <a
               href="https://calendly.com/eric-martinez-acceleralia/30min"
@@ -2211,7 +2238,7 @@ function AppContent() {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-bold text-white transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
             >
-              Reservar en calendario
+              {d.calendarCta}
               <ArrowRight className="w-4 h-4" />
             </a>
           </motion.div>
@@ -2221,14 +2248,9 @@ function AppContent() {
       <motion.section className="py-10 px-4" {...sectionEnter(hm, 'tr', 0, 0.2)}>
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8">
           <motion.div className="glass-card p-8" {...sectionEnter(hm, 'l', 0.05)}>
-            <h2 className="text-2xl font-black mb-5">Que incluye el diagnostico</h2>
+            <h2 className="text-2xl font-black mb-5">{d.includesTitle}</h2>
             <div className="space-y-3">
-              {[
-                'Revision ejecutiva de situacion actual',
-                'Mapa de oportunidades priorizadas',
-                'Identificacion de bloqueos criticos',
-                'Primer plan de accion 30-60-90'
-              ].map((item, i) => (
+              {d.includes.map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 mt-0.5 text-slate-500" />
                   <p className="text-slate-700 dark:text-slate-300">{item}</p>
@@ -2237,14 +2259,9 @@ function AppContent() {
             </div>
           </motion.div>
           <motion.div className="glass-card p-8" {...sectionEnter(hm, 'r', 0.08)}>
-            <h2 className="text-2xl font-black mb-5">Que obtiene tu equipo</h2>
+            <h2 className="text-2xl font-black mb-5">{d.teamTitle}</h2>
             <div className="space-y-3">
-              {[
-                'Claridad sobre que hacer primero',
-                'Criterio para decidir que no hacer',
-                'Direccion compartida entre negocio y operacion',
-                'Siguientes pasos accionables desde el dia 1'
-              ].map((item, i) => (
+              {d.teamItems.map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 mt-0.5 text-slate-500" />
                   <p className="text-slate-700 dark:text-slate-300">{item}</p>
@@ -2257,20 +2274,17 @@ function AppContent() {
 
       <motion.section className="py-10 px-4" {...sectionEnter(hm, 'bl', 0, 0.18)}>
         <motion.div className="glass-card mx-auto max-w-7xl p-8" {...sectionEnter(hm, 'scale', 0.06)}>
-          <h2 className="text-3xl font-black mb-8">Que analizamos en la sesion</h2>
+          <h2 className="text-3xl font-black mb-8">{d.sessionTitle}</h2>
           <div className="grid md:grid-cols-4 gap-5">
-            {[
-              { title: 'Objetivos', desc: 'Metas de negocio y urgencias de direccion.' },
-              { title: 'Procesos', desc: 'Cuellos de botella y puntos de friccion actuales.' },
-              { title: 'Capacidad', desc: 'Equipo, herramientas y nivel de adopcion real.' },
-              { title: 'Impacto', desc: 'Areas donde el retorno puede ser mas rapido.' }
-            ].map((item, i) => (
+            {d.sessionBlocks.map((item, i) => (
               <motion.div
                 key={i}
                 className="glass-card glass-card--sm p-5"
                 {...sectionEnter(hm, (['t', 'b', 'l', 'r'] as const)[i], i * 0.06)}
               >
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mb-2">Bloque {i + 1}</p>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mb-2">
+                  {d.sessionBlockLabel} {i + 1}
+                </p>
                 <h3 className="text-xl font-black mb-2">{item.title}</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-300">{item.desc}</p>
               </motion.div>
@@ -2281,9 +2295,9 @@ function AppContent() {
 
       <motion.section className="py-20 px-4" {...sectionEnter(hm, 'b', 0, 0.22)}>
         <motion.div className="glass-card mx-auto max-w-5xl p-10 text-center" {...sectionEnter(hm, 'scale', 0.08)}>
-          <h2 className="text-4xl md:text-5xl font-black mb-5 leading-[0.95]">Empieza facil: una llamada, un plan claro.</h2>
+          <h2 className="text-4xl md:text-5xl font-black mb-5 leading-[0.95]">{d.closingTitle}</h2>
           <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
-            Objetivo de esta pagina: convertir visitas en llamadas cualificadas.
+            {d.closingBody}
           </p>
           <a
             href="https://calendly.com/eric-martinez-acceleralia/30min"
@@ -2291,7 +2305,7 @@ function AppContent() {
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-8 py-4 font-bold text-white transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
           >
-            Agendar diagnostico
+            {d.closingCta}
             <ArrowRight className="w-5 h-5" />
           </a>
         </motion.div>
@@ -2560,6 +2574,7 @@ function AppContent() {
 
   const renderSobreNosotros = () => {
     const hm = !!shouldReduceMotion;
+    const s = getSobreNosotrosPageCopy(lang);
     return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-20">
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -2572,24 +2587,27 @@ function AppContent() {
             className="order-2 flex flex-col justify-center px-6 py-10 sm:px-10 lg:order-1 lg:px-12 lg:py-14"
             {...sectionEnter(hm, 'l', 0.06, 0.2)}
           >
-            <p className="mb-3 text-[11px] font-black uppercase tracking-[0.28em] text-amber-700 dark:text-amber-400">
-              CAIOExperts.ai
+            <p className="mb-3 text-[11px] font-black uppercase tracking-[0.28em] text-amber-400">
+              {s.kicker}
             </p>
             <h1 className="text-3xl font-black leading-[1.05] text-slate-900 dark:text-white sm:text-4xl md:text-5xl">
-              Sobre nosotros
+              {s.title}
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">
-              Somos un equipo que combina <strong className="font-semibold text-slate-800 dark:text-slate-100">estrategia</strong>,{' '}
-              <strong className="font-semibold text-slate-800 dark:text-slate-100">operacion</strong> y{' '}
-              <strong className="font-semibold text-slate-800 dark:text-slate-100">ejecucion de IA</strong> para empresas que necesitan
-              resultados, no teoria. Trabajamos mano a mano con direccion para convertir la IA en ventaja competitiva real.
+              {s.leadParts.before}
+              <strong className="font-semibold text-slate-800 dark:text-slate-100">{s.leadParts.e1}</strong>
+              {s.leadParts.mid1}
+              <strong className="font-semibold text-slate-800 dark:text-slate-100">{s.leadParts.e2}</strong>
+              {s.leadParts.mid2}
+              <strong className="font-semibold text-slate-800 dark:text-slate-100">{s.leadParts.e3}</strong>
+              {s.leadParts.after}
             </p>
             <button
               type="button"
               onClick={() => setCurrentPage('diagnostico')}
               className="mt-8 inline-flex w-fit items-center gap-2 rounded-md bg-white px-6 py-3.5 text-sm font-black uppercase tracking-wide text-slate-900 shadow-md ring-1 ring-slate-200/90 transition-colors hover:bg-slate-50 active:scale-[0.99] dark:bg-white dark:text-slate-900 dark:ring-slate-600 dark:hover:bg-slate-100"
             >
-              Agendar diagnostico
+              {s.cta}
               <ArrowRight className="h-4 w-4 text-slate-900" />
             </button>
           </motion.div>
@@ -2599,7 +2617,7 @@ function AppContent() {
           >
             <img
               src="https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?auto=format&fit=crop&w=1800&q=80"
-              alt="Equipo liderando transformacion IA"
+              alt={s.heroImgAlt}
               className="absolute inset-0 h-full w-full object-cover"
               loading="lazy"
             />
@@ -2610,12 +2628,7 @@ function AppContent() {
         <div className="grid gap-8 lg:grid-cols-12">
           <div className="lg:col-span-8">
             <div className="grid gap-4 md:grid-cols-2">
-              {[
-                { title: 'Quienes somos', desc: 'Perfil senior de negocio + tecnologia con enfoque ejecutivo.' },
-                { title: 'Experiencia', desc: 'Transformacion en empresas con necesidades reales de velocidad y foco.' },
-                { title: 'Enfoque', desc: 'No somos consultores de slides: ejecutamos con tu equipo.' },
-                { title: 'Filosofia', desc: 'Claridad, priorizacion y resultados medibles por encima del ruido.' }
-              ].map((item, i) => (
+              {s.pillars.map((item, i) => (
                 <motion.div
                   key={i}
                   className="glass-card p-5"
@@ -2628,15 +2641,15 @@ function AppContent() {
             </div>
           </div>
           <motion.div className="glass-card lg:col-span-4 p-8" {...sectionEnter(hm, 'r', 0.12, 0.22)}>
-            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt="Sesion ejecutiva" className="w-full h-36 object-cover rounded-md mb-5" loading="lazy" />
-            <h2 className="text-xl font-black mb-5">Confianza antes de hablar</h2>
+            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt={s.sessionImgAlt} className="w-full h-36 object-cover rounded-md mb-5" loading="lazy" />
+            <h2 className="text-xl font-black mb-5">{s.sidebarTitle}</h2>
             <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
-              <p>Modelo embedded: estamos dentro del dia a dia del negocio.</p>
-              <p>Direccion semanal con foco en decisiones y avance.</p>
-              <p>KPIs y trazabilidad para saber que funciona.</p>
+              {s.sidebarLines.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
             </div>
             <button onClick={() => setCurrentPage('diagnostico')} className="mt-6 px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2">
-              Agendar diagnostico
+              {s.sidebarCta}
               <ArrowRight className="w-4 h-4" />
             </button>
           </motion.div>
@@ -2646,145 +2659,28 @@ function AppContent() {
     );
   };
 
-  const renderFaq = () => {
-    const hm = !!shouldReduceMotion;
-    const cardDirs = ['l', 'r', 'bl', 'br', 'tl', 'tr'] as const;
-    const pp = t.pricingPage as {
-      pricingTitle: string;
-      pricingSubtitle: string;
-      taxNote: string;
-      card1Title: string;
-      card1Price: string;
-      card1Desc: string;
-      card2Title: string;
-      card2Price: string;
-      card2Desc: string;
-      card3Title: string;
-      card3Price: string;
-      card3Desc: string;
-      card3Badge?: string;
-      mostPopular?: string;
-    };
-    const pricingDetailCta: Record<string, string> = {
-      ES: 'Ver planes detallados',
-      EN: 'View detailed plans',
-      CA: 'Veure plans detallats',
-      FR: 'Voir les formules en detail',
-      DE: 'Alle Tarife ansehen',
-      PT: 'Ver planos detalhados',
-      ZH: '查看详细方案'
-    };
-    return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-20">
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div className="rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 mb-6" {...sectionEnter(hm, 'tr', 0, 0.22)}>
-          <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1800&q=80" alt="Soporte IA y decisiones" className="w-full h-56 object-cover" loading="lazy" />
-        </motion.div>
-        <motion.div {...sectionEnter(hm, 'l', 0.06)}>
-          <h1 className="text-4xl md:text-5xl font-black mb-6">FAQ</h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
-            Resolvemos las dudas clave para que puedas decidir sin friccion.
-          </p>
-        </motion.div>
-
-        <motion.div className="mb-10" {...sectionEnter(hm, 'scale', 0.03, 0.18)}>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">{pp.pricingTitle}</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{pp.pricingSubtitle}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-500 mb-6">{pp.taxNote}</p>
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  { title: pp.card1Title, price: pp.card1Price, desc: pp.card1Desc },
-                  { title: pp.card2Title, price: pp.card2Price, desc: pp.card2Desc },
-                  {
-                    title: pp.card3Title,
-                    price: pp.card3Price,
-                    desc: pp.card3Desc,
-                    badge: pp.card3Badge || pp.mostPopular
-                  }
-                ].map((row, i) => (
-                  <motion.div
-                    key={i}
-                    className={`glass-card flex flex-col p-5 ${i === 2 ? 'ring-2 ring-amber-500/40 dark:ring-amber-400/35' : ''}`}
-                    {...sectionEnter(hm, (['l', 'b', 'r'] as const)[i], i * 0.06, 0.2)}
-                  >
-                    {row.badge && (
-                      <span className="mb-2 inline-flex w-fit rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-200">
-                        {row.badge}
-                      </span>
-                    )}
-                    <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{row.title}</p>
-                    <p className="mt-2 text-2xl font-black text-slate-900 dark:text-white">{row.price}</p>
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{row.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentPage('preus-i-serveis');
-                    window.scrollTo(0, 0);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
-                >
-                  {pricingDetailCta[lang] || pricingDetailCta.ES}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </motion.div>
-
-        <div className="space-y-4">
-          {[
-            ['Precio', 'Trabajamos en un rango habitual de 5k-20k/mes segun alcance y nivel de implicacion.'],
-            ['Cuanto tardan los resultados', 'Normalmente las primeras mejoras se ven en 30-60 dias, con consolidacion en 90 dias.'],
-            ['Esto es consultoria', 'No. Es liderazgo continuo con ejecucion y seguimiento de impacto.'],
-            ['Que necesitamos para empezar', 'Sponsor directivo, acceso a responsables clave y voluntad de priorizar decisiones.'],
-            ['Necesito equipo tecnico interno', 'No necesariamente. Adaptamos el ritmo al equipo que ya tengas.'],
-            ['Y si ya hacemos cosas con IA', 'Mejor: ordenamos, priorizamos y aceleramos lo que realmente da retorno.']
-          ].map(([q, a], i) => (
-            <motion.div key={i} className="glass-card p-5" {...sectionEnter(hm, cardDirs[i % cardDirs.length], i * 0.04)}>
-              <p className="font-black text-slate-900 dark:text-white mb-2">{q}</p>
-              <p className="text-sm text-slate-600 dark:text-slate-300">{a}</p>
-            </motion.div>
-          ))}
-        </div>
-        <motion.div className="mt-8" {...sectionEnter(hm, 'scale', 0.1)}>
-          <button onClick={() => setCurrentPage('diagnostico')} className="px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2">
-            Resolverlo en una llamada
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </motion.div>
-      </section>
-    </motion.div>
-    );
-  };
-
   const renderComoTrabajamos = () => {
     const hm = !!shouldReduceMotion;
+    const c = getComoTrabajamosPageCopy(lang);
     const dirs = ['l', 'r', 'bl', 'tr'] as const;
     return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-20">
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div className="rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 mb-6" {...sectionEnter(hm, 't', 0, 0.22)}>
-          <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1800&q=80" alt="Proceso de implementacion IA" className="w-full h-56 object-cover" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1800&q=80" alt={c.heroImgAlt} className="w-full h-56 object-cover" loading="lazy" />
         </motion.div>
         <motion.div {...sectionEnter(hm, 'r', 0.06)}>
-          <h1 className="text-4xl md:text-5xl font-black mb-4">Como trabajamos</h1>
+          <h1 className="text-4xl md:text-5xl font-black mb-4">{c.title}</h1>
           <p className="text-lg text-slate-600 dark:text-slate-300 mb-10 max-w-3xl">
-            Proceso simple para empezar rapido: Diagnostico, Roadmap, Implementacion y Escalado.
+            {c.subtitle}
           </p>
         </motion.div>
         <div className="grid md:grid-cols-2 gap-6">
-          {[
-            { step: '01', title: 'Diagnostico', desc: 'Detectamos oportunidades, bloqueos y prioridades.', image: '/images/Portada2.webp' },
-            { step: '02', title: 'Roadmap', desc: 'Definimos plan 30-60-90 con responsables y objetivos.', image: '/images/Portada3.webp' },
-            { step: '03', title: 'Implementacion', desc: 'Acompañamos ejecucion para que las iniciativas salgan.', image: '/images/Portada4.jpg' },
-            { step: '04', title: 'Escalado', desc: 'Escalamos lo que funciona con KPIs de negocio.', image: '/images/Portada5.jpg' }
-          ].map((item, i) => (
+          {c.steps.map((item, i) => (
             <motion.div key={i} className="glass-card overflow-hidden rounded-xl" {...sectionEnter(hm, dirs[i], i * 0.06)}>
               <img src={item.image} alt={item.title} className="w-full h-44 object-cover" referrerPolicy="no-referrer" />
               <div className="p-6">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mb-2">Paso {item.step}</p>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mb-2">{c.stepLabel(item.step)}</p>
                 <h2 className="text-2xl font-black mb-2">{item.title}</h2>
                 <p className="text-slate-600 dark:text-slate-300">{item.desc}</p>
               </div>
@@ -2793,7 +2689,7 @@ function AppContent() {
         </div>
         <motion.div className="mt-8" {...sectionEnter(hm, 'b', 0.12)}>
           <button onClick={() => setCurrentPage('diagnostico')} className="px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2">
-            Empezar con diagnostico
+            {c.cta}
             <ArrowRight className="w-4 h-4" />
           </button>
         </motion.div>
@@ -2983,16 +2879,28 @@ function AppContent() {
 
   const renderHomeV2 = () => {
     const hm = !!shouldReduceMotion;
+    const h = getHomeV2Copy(lang);
     return (
-    <motion.div initial={{ opacity: hm ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative pb-24 text-slate-900 dark:text-slate-100">
+    <motion.div
+      initial={{ opacity: hm ? 1 : 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="relative pb-24 text-slate-900 dark:text-slate-100"
+    >
       <motion.section
         initial={hm ? false : { opacity: 0, y: 48 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 overflow-hidden border-b border-white/10"
+        className="relative z-10 overflow-hidden border-b border-slate-200/70 dark:border-white/10"
       >
-        <div className="absolute inset-0 bg-slate-950/35" />
+        <div
+          className={
+            theme === 'light'
+              ? 'absolute inset-0 bg-transparent'
+              : 'absolute inset-0 bg-slate-950/35'
+          }
+        />
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {[
             { left: '8%', top: '18%', size: 'w-1.5 h-1.5', delay: 0, duration: 7.5 },
@@ -3019,12 +2927,16 @@ function AppContent() {
           ].map((particle, i) => (
             <motion.span
               key={i}
-              className={`absolute rounded-full bg-white/15 shadow-[0_0_6px_rgba(255,255,255,0.12)] ${particle.size}`}
+              className={`absolute rounded-full ${
+                theme === 'light'
+                  ? 'bg-slate-500/25 shadow-[0_0_6px_rgba(71,85,105,0.18)]'
+                  : 'bg-white/15 shadow-[0_0_6px_rgba(255,255,255,0.12)]'
+              } ${particle.size}`}
               style={{ left: particle.left, top: particle.top }}
               animate={{
                 y: [0, -14, 0],
                 x: [0, 5, 0],
-                opacity: [0.06, 0.28, 0.06],
+                opacity: theme === 'light' ? [0.08, 0.32, 0.08] : [0.06, 0.28, 0.06],
                 scale: [1, 1.12, 1]
               }}
               transition={{
@@ -3039,18 +2951,18 @@ function AppContent() {
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-28">
           <div className="grid items-center gap-10 lg:grid-cols-12">
             <motion.div initial={hm ? false : { opacity: 0, x: -44, y: 8 }} whileInView={{ opacity: 1, x: 0, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.62, ease: 'easeOut', delay: 0.04 }} className="lg:col-span-8">
-              <p className="glass-card mb-6 inline-flex items-center px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
-                CAIOExperts.ai | Chief AI Officer as a Service
+              <p className="glass-card mb-6 inline-flex items-center px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                {h.hero.badge}
               </p>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight text-white">
-                Te ponemos un Chief AI Officer
-                <span className="block text-amber-300">dentro de tu empresa, sin contratarlo.</span>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight text-slate-900 dark:text-white">
+                {h.hero.title1}
+                <span className="block text-amber-300">{h.hero.title2}</span>
               </h1>
-              <p className="mt-6 text-lg md:text-xl text-slate-100 max-w-3xl">
-                Ponemos un CAIO dentro de tu empresa para convertir iniciativas sueltas en direccion, velocidad y resultados medibles.
+              <p className="mt-6 text-lg md:text-xl text-slate-700 dark:text-slate-100 max-w-3xl">
+                {h.hero.lead}
               </p>
-              <p className="mt-3 text-sm font-semibold text-amber-100/90">
-                Para empresas de 50-500 empleados con presion por ejecutar IA.
+              <p className="mt-3 text-sm font-semibold text-amber-300">
+                {h.hero.audience}
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <motion.button
@@ -3058,15 +2970,15 @@ function AppContent() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 320, damping: 18 }}
                   onClick={() => setCurrentPage('diagnostico')}
-                  className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-8 py-4 font-bold text-slate-900 shadow-lg shadow-black/25 ring-1 ring-white/30 transition-colors hover:bg-slate-100"
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-slate-900 px-8 py-4 font-bold text-white shadow-lg shadow-slate-900/25 ring-1 ring-slate-800/30 transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:shadow-black/25 dark:ring-white/30 dark:hover:bg-slate-100"
                 >
-                  Agenda tu diagnostico de IA (30 min)
+                  {h.hero.cta}
                   <ArrowRight className="w-5 h-5" />
                 </motion.button>
-                <div className="text-sm text-slate-200 self-center">Sin compromiso · Roadmap inicial · Capacidad limitada</div>
+                <div className="text-sm text-slate-600 dark:text-slate-200 self-center">{h.hero.subCta}</div>
               </div>
-              <p className="mt-3 text-xs text-slate-300">
-                No es para empresas sin presupuesto o en fase de prueba.
+              <p className="mt-3 text-xs text-slate-500 dark:text-slate-300">
+                {h.hero.disclaimer}
               </p>
             </motion.div>
 
@@ -3078,22 +2990,22 @@ function AppContent() {
               className="lg:col-span-4"
             >
               <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }} className="glass-card p-6">
-                <p className="text-xs font-bold uppercase tracking-widest text-amber-200/95 dark:text-amber-100/90 mb-4">En 90 dias</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-amber-300 mb-4">{h.timeline.badge}</p>
                 <div className="space-y-3">
                   <div className="glass-card glass-card--sm p-3">
-                    <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=1200&q=80" alt="Diagnostico IA" className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
-                    <p className="text-xs text-slate-300">Dia 30</p>
-                    <p className="font-semibold text-white">Diagnostico + prioridades por ROI</p>
+                    <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=1200&q=80" alt={h.alts.diagnostic} className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
+                    <p className="text-xs text-slate-600 dark:text-slate-300">{h.timeline.steps[0].day}</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">{h.timeline.steps[0].title}</p>
                   </div>
                   <div className="glass-card glass-card--sm p-3">
-                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80" alt="Ejecucion de casos IA" className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
-                    <p className="text-xs text-slate-300">Dia 60</p>
-                    <p className="font-semibold text-white">Casos de uso en ejecucion</p>
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80" alt={h.alts.execution} className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
+                    <p className="text-xs text-slate-600 dark:text-slate-300">{h.timeline.steps[1].day}</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">{h.timeline.steps[1].title}</p>
                   </div>
                   <div className="glass-card glass-card--sm p-3">
-                    <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80" alt="KPIs y escalado IA" className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
-                    <p className="text-xs text-slate-300">Dia 90</p>
-                    <p className="font-semibold text-white">KPIs activos + plan de escalado</p>
+                    <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80" alt={h.alts.kpis} className="h-24 w-full object-cover rounded mb-3" loading="lazy" />
+                    <p className="text-xs text-slate-600 dark:text-slate-300">{h.timeline.steps[2].day}</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">{h.timeline.steps[2].title}</p>
                   </div>
                 </div>
               </motion.div>
@@ -3112,17 +3024,17 @@ function AppContent() {
         <div className="grid md:grid-cols-3 gap-4">
           {[
             {
-              text: 'Cada mes sin estrategia de IA es ventaja para tu competencia.',
+              text: h.urgency[0].text,
               image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
               from: 'l' as const
             },
             {
-              text: 'La IA sin liderazgo solo multiplica coste y desorden.',
+              text: h.urgency[1].text,
               image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
               from: 'b' as const
             },
             {
-              text: 'Si no decides ahora, en 12 meses vas a llegar tarde.',
+              text: h.urgency[2].text,
               image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
               from: 'r' as const
             }
@@ -3144,7 +3056,7 @@ function AppContent() {
               whileHover={{ y: -4 }}
               className="glass-card p-5"
             >
-              <img src={item.image} alt="Contexto de negocio e IA" className="h-36 w-full object-cover rounded-md mb-4" loading="lazy" />
+              <img src={item.image} alt={h.alts.businessContext} className="h-36 w-full object-cover rounded-md mb-4" loading="lazy" />
               <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.text}</p>
             </motion.div>
           ))}
@@ -3167,14 +3079,13 @@ function AppContent() {
             whileHover={{ y: -4, transition: { type: 'spring', stiffness: 260, damping: 20 } }}
             className="glass-card p-7"
           >
-            <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=80" alt="Desalineacion tecnologica" className="h-44 w-full object-cover rounded-md mb-5" loading="lazy" />
-            <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-4">Problema</p>
-            <h2 className="mb-5 text-3xl font-black text-slate-900 dark:text-white">El problema no es la IA. Es la falta de liderazgo.</h2>
+            <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=80" alt={h.alts.misalignment} className="h-44 w-full object-cover rounded-md mb-5" loading="lazy" />
+            <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-4">{h.problem.kicker}</p>
+            <h2 className="mb-5 text-3xl font-black text-slate-900 dark:text-white">{h.problem.title}</h2>
             <ul className="space-y-3 text-slate-700 dark:text-slate-300">
-              <li>- Iniciativas sin direccion comun</li>
-              <li>- Pilotos que no escalan</li>
-              <li>- Equipos desalineados</li>
-              <li>- Dependencia de proveedores para decidir</li>
+              {h.problem.bullets.map((line) => (
+                <li key={line}>- {line}</li>
+              ))}
             </ul>
           </motion.div>
           <motion.div
@@ -3185,14 +3096,13 @@ function AppContent() {
             whileHover={{ y: -4, transition: { type: 'spring', stiffness: 260, damping: 20 } }}
             className="rounded-md border border-cyan-300/50 bg-gradient-to-br from-cyan-100/92 to-amber-100/92 p-7 shadow-md backdrop-blur-md dark:border-cyan-400/25 dark:from-cyan-900/45 dark:to-amber-900/35 dark:shadow-lg dark:backdrop-blur-lg"
           >
-            <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1400&q=80" alt="Equipo ejecutando roadmap IA" className="h-44 w-full object-cover rounded-md mb-5" loading="lazy" />
-            <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-4">Solucion</p>
-            <h2 className="mb-5 text-3xl font-black text-slate-900 dark:text-white">Actuamos como tu Chief AI Officer</h2>
+            <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1400&q=80" alt={h.alts.roadmap} className="h-44 w-full object-cover rounded-md mb-5" loading="lazy" />
+            <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-4">{h.solution.kicker}</p>
+            <h2 className="mb-5 text-3xl font-black text-slate-900 dark:text-white">{h.solution.title}</h2>
             <ul className="space-y-3 text-slate-800 dark:text-slate-200">
-              <li>- Definimos estrategia de IA alineada a negocio</li>
-              <li>- Priorizamos por impacto y viabilidad</li>
-              <li>- Lideramos ejecucion con tu equipo</li>
-              <li>- Escalamos lo que funciona con KPIs</li>
+              {h.solution.bullets.map((line) => (
+                <li key={line}>- {line}</li>
+              ))}
             </ul>
           </motion.div>
         </div>
@@ -3206,15 +3116,15 @@ function AppContent() {
         className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
       >
         <div className="glass-card p-7 ring-1 ring-cyan-400/25 dark:ring-cyan-400/35">
-          <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-3">Categoria next step</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300 font-bold mb-3">{h.nextStep.kicker}</p>
           <h3 className="mb-3 text-2xl font-black text-slate-900 dark:text-white md:text-3xl">
-            CTOaaS fue el paso uno. CAIOaaS embedded es el siguiente.
+            {h.nextStep.title}
           </h3>
           <p className="text-slate-700 dark:text-slate-300 mb-4">
-            No es un perfil suelto. Es un modelo de liderazgo de IA integrado en tu empresa para definir estrategia, ejecutar iniciativas y consolidar adopcion cultural.
+            {h.nextStep.body}
           </p>
           <p className="font-bold text-slate-900 dark:text-white">
-            No vendemos IA. Vendemos liderazgo externalizado para convertir IA en resultados.
+            {h.nextStep.highlight}
           </p>
         </div>
       </motion.section>
@@ -3233,7 +3143,7 @@ function AppContent() {
           transition={{ duration: 0.45, ease: 'easeOut' }}
           className="mb-6 text-3xl font-black text-slate-900 drop-shadow-sm dark:text-white"
         >
-          No somos consultores. Somos parte de tu equipo.
+          {h.compare.title}
         </motion.h3>
         <div className="grid md:grid-cols-3 gap-5">
           <motion.div
@@ -3244,10 +3154,10 @@ function AppContent() {
             whileHover={{ y: -4, transition: { type: 'spring', stiffness: 260, damping: 20 } }}
             className="glass-card p-6"
           >
-            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt="Consultoria tradicional" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
-            <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">Consultoras</p>
-            <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Recomendaciones y slides</p>
-            <p className="font-semibold">Si: Direccion y ejecucion continua</p>
+            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt={h.alts.consulting} className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
+            <p className="text-amber-300 text-xs font-bold mb-2">{h.compare.columns[0].label}</p>
+            <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">{h.compare.columns[0].nope}</p>
+            <p className="font-semibold">{h.compare.columns[0].yep}</p>
           </motion.div>
           <motion.div
             initial={hm ? false : { opacity: 0, y: 40 }}
@@ -3257,10 +3167,10 @@ function AppContent() {
             whileHover={{ y: -4, transition: { type: 'spring', stiffness: 260, damping: 20 } }}
             className="glass-card p-6"
           >
-            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80" alt="Freelancer trabajando solo" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
-            <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">Freelancers</p>
-            <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Soluciones sueltas</p>
-            <p className="font-semibold">Si: Prioridades y roadmap de negocio</p>
+            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80" alt={h.alts.freelancer} className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
+            <p className="text-amber-300 text-xs font-bold mb-2">{h.compare.columns[1].label}</p>
+            <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">{h.compare.columns[1].nope}</p>
+            <p className="font-semibold">{h.compare.columns[1].yep}</p>
           </motion.div>
           <motion.div
             initial={hm ? false : { opacity: 0, x: 36, y: 12 }}
@@ -3270,10 +3180,10 @@ function AppContent() {
             whileHover={{ y: -4, transition: { type: 'spring', stiffness: 260, damping: 20 } }}
             className="glass-card p-6"
           >
-            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" alt="Equipo interno tecnico" className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
-            <p className="text-amber-600 dark:text-amber-300 text-xs font-bold mb-2">CTO interno</p>
-            <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">No: Foco tecnico</p>
-            <p className="font-semibold">Si: Foco en impacto y adopcion</p>
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" alt={h.alts.internalTeam} className="h-32 w-full object-cover rounded-md mb-4" loading="lazy" />
+            <p className="text-amber-300 text-xs font-bold mb-2">{h.compare.columns[2].label}</p>
+            <p className="text-slate-700 dark:text-slate-300 text-sm mb-3">{h.compare.columns[2].nope}</p>
+            <p className="font-semibold">{h.compare.columns[2].yep}</p>
           </motion.div>
         </div>
       </motion.section>
@@ -3292,14 +3202,10 @@ function AppContent() {
           transition={{ duration: 0.48, ease: 'easeOut' }}
           className="mb-6 text-center text-3xl font-black text-slate-900 drop-shadow-sm dark:text-white"
         >
-          FAQ de decision
+          {h.faq.title}
         </motion.h3>
         <div className="space-y-4">
-          {[
-            ['¿Por que no contratar un CAIO full-time?', 'Porque necesitas liderazgo senior inmediato, con menos riesgo y sin coste fijo C-Level.'],
-            ['¿Cuanto tarda en verse impacto?', 'En semanas ves claridad y en 60-90 dias tienes ejecucion y KPIs en marcha.'],
-            ['¿Como trabajais con mi equipo?', 'Nos integramos con direccion y responsables para coordinar negocio, operacion y tecnologia.']
-          ].map(([q, a], i) => (
+          {h.faq.items.map(({ q, a }, i) => (
             <motion.div
               key={i}
               initial={
@@ -3333,7 +3239,7 @@ function AppContent() {
       {showTopNav && (
         <motion.nav
         key={currentPage === 'home' ? `home-nav-${homeSplashDismissed}` : `nav-${currentPage}`}
-        className="sticky top-0 z-50 relative w-full border-b border-white/15 bg-white/70 shadow-sm backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-slate-950/70"
+        className="sticky top-0 z-50 relative w-full border-b border-slate-200/80 bg-white/92 shadow-sm backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-slate-950/75"
         initial={
           currentPage === 'home' && homeSplashDismissed && !shouldReduceMotion
             ? { opacity: 0, y: -28 }
@@ -3352,7 +3258,7 @@ function AppContent() {
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
           <Logo />
 
-          <div className="hidden md:flex flex-1 justify-center items-center gap-6 text-sm font-semibold text-slate-600 dark:text-slate-300 min-w-0">
+          <div className="hidden md:flex flex-1 justify-center items-center gap-6 text-sm font-semibold text-slate-800 dark:text-slate-300 min-w-0">
             {mainNavItems.map((item) => (
               <motion.button
                 key={item.key}
@@ -3360,7 +3266,7 @@ function AppContent() {
                 whileHover={shouldReduceMotion ? undefined : { y: -2 }}
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
                 onClick={() => setCurrentPage(item.key)}
-                className={`relative shrink-0 pb-1 transition-colors hover:text-amber-700 dark:hover:text-amber-300 ${currentPage === item.key ? 'text-amber-700 dark:text-amber-300' : ''}`}
+                className={`relative shrink-0 pb-1 transition-colors hover:text-amber-300 ${currentPage === item.key ? 'text-amber-300' : ''}`}
               >
                 {item.label}
                 {currentPage === item.key && (
@@ -3390,12 +3296,12 @@ function AppContent() {
               </button>
               {showLangMenu && (
                 <div className="absolute top-full right-0 z-[70] mt-2 w-24 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-                  {['ES', 'EN', 'CA', 'FR', 'DE', 'PT', 'ZH'].map((l) => (
+                  {(['ES', 'EN', 'CA'] as const).map((l) => (
                     <button
                       key={l}
                       type="button"
                       onClick={() => {
-                        setLang(l);
+                        void i18n.changeLanguage(legacyToI18nLng(l));
                         setShowLangMenu(false);
                       }}
                       className="w-full px-4 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
@@ -3411,7 +3317,7 @@ function AppContent() {
               type="button"
               onClick={toggleTheme}
               className="rounded-md p-2.5 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-              aria-label={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+              aria-label={theme === 'dark' ? marketingHeader?.themeLight ?? 'Modo claro' : marketingHeader?.themeDark ?? 'Modo oscuro'}
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -3421,7 +3327,7 @@ function AppContent() {
               className="hidden min-[420px]:inline-flex shrink-0 rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-slate-800 hover:shadow-lg active:scale-95 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 sm:px-5 sm:py-2.5 sm:text-sm"
               onClick={() => setCurrentPage('diagnostico')}
             >
-              Agendar diagnostico
+              {marketingNav?.agendarDiagnostico ?? 'Agendar diagnostico'}
             </button>
 
             <button
@@ -3433,7 +3339,7 @@ function AppContent() {
               }}
               aria-expanded={mobileNavOpen}
               aria-controls="mobile-main-nav"
-              aria-label={mobileNavOpen ? 'Cerrar menu' : 'Abrir menu'}
+              aria-label={mobileNavOpen ? marketingHeader?.closeMenu ?? 'Cerrar menu' : marketingHeader?.openMenu ?? 'Abrir menu'}
             >
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
@@ -3469,7 +3375,7 @@ function AppContent() {
                 id="mobile-main-nav"
                 role="dialog"
                 aria-modal="true"
-                aria-label="Menu de navegacion"
+                aria-label={marketingHeader?.navMenuLabel ?? 'Menu de navegacion'}
                 className="fixed left-0 right-0 top-16 z-[61] max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-white/20 bg-white/95 px-3 py-4 shadow-2xl shadow-slate-900/10 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/95 md:hidden"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: -14 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -3489,7 +3395,7 @@ function AppContent() {
                         onClick={() => setCurrentPage(item.key)}
                         className={`flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-left text-[15px] font-semibold transition-colors active:scale-[0.99] ${
                           currentPage === item.key
-                            ? 'bg-amber-500/15 text-amber-800 dark:text-amber-200'
+                            ? 'bg-amber-500/15 text-amber-300'
                             : 'text-slate-800 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800/80'
                         }`}
                       >
@@ -3512,7 +3418,7 @@ function AppContent() {
                     onClick={() => setCurrentPage('diagnostico')}
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3.5 text-sm font-bold text-white shadow-md dark:bg-white dark:text-slate-900"
                   >
-                    Agendar diagnostico
+                    {marketingNav?.agendarDiagnostico ?? 'Agendar diagnostico'}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </motion.div>
@@ -3525,7 +3431,14 @@ function AppContent() {
 
       {/* MAIN CONTENT AREA */}
       <main className="relative flex flex-grow flex-col">
-        <GlobalVideoBackdrop shouldReduceMotion={!!shouldReduceMotion} />
+        <GlobalVideoBackdrop
+          shouldReduceMotion={!!shouldReduceMotion}
+          overlayClassName={
+            theme === 'light'
+              ? 'bg-gradient-to-b from-white/58 via-slate-100/48 to-white/55'
+              : 'bg-slate-950/52'
+          }
+        />
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPage}
@@ -3578,8 +3491,8 @@ function AppContent() {
             )}
             {currentPage === 'como-trabajamos' && renderComoTrabajamos()}
             {currentPage === 'resultados' && (
-              <CasosDeUso 
-                t={t} 
+              <CasosDeUso
+                lang={lang}
                 onContact={() => setCurrentPage('diagnostico')}
               />
             )}
@@ -3591,16 +3504,15 @@ function AppContent() {
               />
             )}
             {currentPage === 'sobre-nosotros' && renderSobreNosotros()}
-            {currentPage === 'faq' && renderFaq()}
             {currentPage === 'diagnostico' && renderContacto()}
             {currentPage === 'contacto' && renderContacto()}
             {currentPage === 'legal' && renderLegal()}
             {currentPage === 'privacy' && renderPrivacy()}
             {currentPage === 'cookies' && renderCookies()}
             {currentPage === 'caio-service' && (
-              <TecnicoContratacion 
-                t={t} 
-                onBookDemo={() => setShowDemoModal(true)} 
+              <TecnicoContratacion
+                lang={lang}
+                onBookDemo={() => setShowDemoModal(true)}
               />
             )}
           </motion.div>
@@ -3616,7 +3528,7 @@ function AppContent() {
             </div>
             <span className="ml-1 text-xl font-bold tracking-tight text-slate-800 transition-colors duration-300 dark:text-white">
               <span className="text-slate-950 dark:text-white">CAIO</span>
-              <span className="text-amber-600 dark:text-amber-400">Experts.ai</span>
+              <span className="text-amber-400">Experts.ai</span>
             </span>
           </div>
           <div className="text-slate-600 dark:text-slate-400 text-sm text-center md:text-left transition-colors duration-300">

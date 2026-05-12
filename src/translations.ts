@@ -13,6 +13,22 @@ export const translations = {
       login: 'Acceder a la Herramienta',
       casosDeUso: 'Casos de Uso'
     },
+    marketingNav: {
+      home: 'Inicio',
+      caioService: 'CAIO as a Service',
+      resultados: 'Resultados',
+      comoTrabajamos: 'Como trabajamos',
+      sobreNosotros: 'Sobre nosotros',
+      diagnostico: 'Diagnostico',
+      agendarDiagnostico: 'Agendar diagnostico'
+    },
+    marketingHeader: {
+      themeLight: 'Modo claro',
+      themeDark: 'Modo oscuro',
+      openMenu: 'Abrir menu',
+      closeMenu: 'Cerrar menu',
+      navMenuLabel: 'Menu de navegacion'
+    },
     casosDeUso: {
       title: 'Administraciones que nos gusta lo que hacen',
       subtitle: 'Analizamos y seguimos de cerca las mejores prácticas de modernización administrativa para inspirar la evolución de nuestra plataforma.',
@@ -1129,6 +1145,22 @@ export const translations = {
       login: 'Access the Tool',
       casosDeUso: 'Use Cases'
     },
+    marketingNav: {
+      home: 'Home',
+      caioService: 'CAIO as a Service',
+      resultados: 'Results',
+      comoTrabajamos: 'How we work',
+      sobreNosotros: 'About us',
+      diagnostico: 'Diagnostic',
+      agendarDiagnostico: 'Book a diagnostic'
+    },
+    marketingHeader: {
+      themeLight: 'Light mode',
+      themeDark: 'Dark mode',
+      openMenu: 'Open menu',
+      closeMenu: 'Close menu',
+      navMenuLabel: 'Main navigation menu'
+    },
     casosDeUso: {
       title: 'Administrations whose work we admire',
       subtitle: 'We analyze and closely follow the best administrative modernization practices to inspire the evolution of our platform.',
@@ -2237,6 +2269,22 @@ export const translations = {
       bookDemo: 'Agendar Demo',
       login: 'Accedir a l\'Eina',
       casosDeUso: 'Casos d\'Ús'
+    },
+    marketingNav: {
+      home: 'Inici',
+      caioService: 'CAIO as a Service',
+      resultados: 'Resultats',
+      comoTrabajamos: 'Com treballem',
+      sobreNosotros: 'Sobre nosaltres',
+      diagnostico: 'Diagnòstic',
+      agendarDiagnostico: 'Sol·licitar diagnòstic'
+    },
+    marketingHeader: {
+      themeLight: 'Mode clar',
+      themeDark: 'Mode fosc',
+      openMenu: 'Obrir el menú',
+      closeMenu: 'Tancar el menú',
+      navMenuLabel: 'Menú de navegació principal'
     },
     casosDeUso: {
       title: 'Administracions que ens agrada el que fan',
@@ -3356,6 +3404,22 @@ export const translations = {
       login: 'Accéder à l\'Outil',
       casosDeUso: 'Cas d\'Usage'
     },
+    marketingNav: {
+      home: 'Accueil',
+      caioService: 'CAIO as a Service',
+      resultados: 'Résultats',
+      comoTrabajamos: 'Notre méthode',
+      sobreNosotros: 'À propos',
+      diagnostico: 'Diagnostic',
+      agendarDiagnostico: 'Réserver un diagnostic'
+    },
+    marketingHeader: {
+      themeLight: 'Mode clair',
+      themeDark: 'Mode sombre',
+      openMenu: 'Ouvrir le menu',
+      closeMenu: 'Fermer le menu',
+      navMenuLabel: 'Menu de navigation principal'
+    },
     casosDeUso: {
       title: 'Les administrations dont nous aimons le travail',
       subtitle: 'Nous analysons et suivons de près les meilleures pratiques de modernisation administrative pour inspirer l\'évolution de notre plateforme.',
@@ -4416,6 +4480,22 @@ export const translations = {
       login: 'Zugriff auf das Tool',
       casosDeUso: 'Anwendungsfälle'
     },
+    marketingNav: {
+      home: 'Startseite',
+      caioService: 'CAIO as a Service',
+      resultados: 'Ergebnisse',
+      comoTrabajamos: 'So arbeiten wir',
+      sobreNosotros: 'Über uns',
+      diagnostico: 'Diagnostik',
+      agendarDiagnostico: 'Diagnostik buchen'
+    },
+    marketingHeader: {
+      themeLight: 'Heller Modus',
+      themeDark: 'Dunkler Modus',
+      openMenu: 'Menü öffnen',
+      closeMenu: 'Menü schließen',
+      navMenuLabel: 'Hauptnavigationsmenü'
+    },
     casosDeUso: {
       title: 'Verwaltungen, deren Handeln wir schätzen',
       subtitle: 'Wir analysieren und verfolgen aufmerksam die besten Praktiken der Verwaltungsmodernisierung, um die Entwicklung unserer Plattform zu inspirieren.',
@@ -5472,6 +5552,22 @@ export const translations = {
       login: 'Aceder à Ferramenta',
       casosDeUso: 'Casos de Uso'
     },
+    marketingNav: {
+      home: 'Início',
+      caioService: 'CAIO as a Service',
+      resultados: 'Resultados',
+      comoTrabajamos: 'Como trabalhamos',
+      sobreNosotros: 'Sobre nós',
+      diagnostico: 'Diagnóstico',
+      agendarDiagnostico: 'Agendar diagnóstico'
+    },
+    marketingHeader: {
+      themeLight: 'Modo claro',
+      themeDark: 'Modo escuro',
+      openMenu: 'Abrir menu',
+      closeMenu: 'Fechar menu',
+      navMenuLabel: 'Menu de navegação principal'
+    },
     casosDeUso: {
       title: 'Administrações que gostamos do que fazem',
       subtitle: 'Analisamos e acompanhamos de perto as melhores práticas de modernização administrativa para inspirar a evolução da nossa plataforma.',
@@ -6478,6 +6574,22 @@ export const translations = {
       bookDemo: '预约演示',
       login: '访问工具',
       casosDeUso: '用例'
+    },
+    marketingNav: {
+      home: '首页',
+      caioService: 'CAIO as a Service',
+      resultados: '成果与案例',
+      comoTrabajamos: '工作方式',
+      sobreNosotros: '关于我们',
+      diagnostico: '诊断咨询',
+      agendarDiagnostico: '预约诊断'
+    },
+    marketingHeader: {
+      themeLight: '浅色模式',
+      themeDark: '深色模式',
+      openMenu: '打开菜单',
+      closeMenu: '关闭菜单',
+      navMenuLabel: '主导航菜单'
     },
     casosDeUso: {
       title: '我们欣赏其行政做法的机构',
@@ -7513,3 +7625,5 @@ export const translations = {
     }
   }
 };
+
+export type TranslationLocale = (typeof translations)['ES'];

@@ -5,6 +5,7 @@ import App from './App.tsx';
 import PortfolioIndex from './PortfolioIndex.tsx';
 import DesignProHero from './pages/DesignProHero.tsx';
 import './index.css';
+import './i18n/i18n';
 
 function AppRoutes() {
   return (
